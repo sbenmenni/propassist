@@ -1,0 +1,6 @@
+/* Propassist site: page basics. Layout and colors are set inline on each element. */
+body { margin: 0; }
+a { color: #172329; }
+a:hover { color: #5A676F; }
+img { max-width: 100%; }
+a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid #2F6871; outline-offset: 2px; }
