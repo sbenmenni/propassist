@@ -1,0 +1,1096 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>Propassist Demo</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Layout: one app shell. Header with brand and role switch, a tab strip, then cards in one column that goes two-up on wide screens. Teal accent on cool slate; status colors are separate from the accent. */
+:root{
+  --bg:#ECF1F2; --surface:#FFFFFF; --surface-2:#F4F7F8; --ink:#14232A; --muted:#566870; --line:#D3DCDF;
+  --accent:#0B6A73; --accent-ink:#FFFFFF; --accent-soft:#DDEFF1;
+  --good:#17703F; --good-soft:#DDF1E5;
+  --warn:#8F5200; --warn-soft:#FCEBCB;
+  --bad:#B0281C; --bad-soft:#FBE0DC; --on-bad:#FFFFFF;
+  --info:#1F4FA8; --info-soft:#DEE8FA;
+  --font-display:'Space Grotesk','Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-body:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --font-mono:'IBM Plex Mono',ui-monospace,SFMono-Regular,Menlo,monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0D1418; --surface:#141E24; --surface-2:#192630; --ink:#E7EFF1; --muted:#93A6AE; --line:#263741;
+    --accent:#52C6D1; --accent-ink:#03262B; --accent-soft:#12353A;
+    --good:#5BD08A; --good-soft:#12301F;
+    --warn:#F0B35A; --warn-soft:#3A2A0C;
+    --bad:#FF8E80; --bad-soft:#3F1A16; --on-bad:#3F0E09;
+    --info:#8DB3F5; --info-soft:#15284A;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0D1418; --surface:#141E24; --surface-2:#192630; --ink:#E7EFF1; --muted:#93A6AE; --line:#263741;
+  --accent:#52C6D1; --accent-ink:#03262B; --accent-soft:#12353A;
+  --good:#5BD08A; --good-soft:#12301F;
+  --warn:#F0B35A; --warn-soft:#3A2A0C;
+  --bad:#FF8E80; --bad-soft:#3F1A16; --on-bad:#3F0E09;
+  --info:#8DB3F5; --info-soft:#15284A;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+body{
+  background:var(--bg); color:var(--ink); font-family:var(--font-body); font-size:14px; line-height:1.5;
+  padding-block:0 48px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
+}
+h1,h2,h3,p{margin:0}
+h2{font-family:var(--font-display); font-size:20px; font-weight:600; letter-spacing:-.01em; text-wrap:balance}
+h3{font-family:var(--font-display); font-size:15px; font-weight:600}
+button,input,select,textarea{font:inherit; color:inherit}
+:focus-visible{outline:2px solid var(--accent); outline-offset:2px}
+.wrap{max-width:1080px; margin:0 auto}
+.muted{color:var(--muted)}
+.sr{position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap}
+.num{font-variant-numeric:tabular-nums}
+.mono{font-family:var(--font-mono); font-size:12.5px; letter-spacing:.02em}
+
+header.top{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; padding-block:18px 12px}
+.brand{display:flex; align-items:center; gap:10px; font-family:var(--font-display); font-weight:700; font-size:20px; letter-spacing:-.01em}
+.brand .role{font-family:var(--font-body); font-weight:600; font-size:11px; color:var(--muted); letter-spacing:.08em; text-transform:uppercase; padding-left:10px; border-left:1px solid var(--line)}
+.seg{display:inline-flex; border:1px solid var(--line); border-radius:9px; background:var(--surface); padding:2px}
+.seg button{border:0; background:transparent; color:var(--muted); font-weight:600; padding:6px 12px; border-radius:7px; cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--accent); color:var(--accent-ink)}
+nav.tabs{display:flex; gap:2px; overflow-x:auto; border-bottom:1px solid var(--line); margin-bottom:18px}
+nav.tabs button{border:0; background:transparent; color:var(--muted); font-weight:600; padding:10px 14px; cursor:pointer; border-bottom:2px solid transparent; white-space:nowrap; display:flex; gap:6px; align-items:center; margin-bottom:-1px}
+nav.tabs button:hover{color:var(--ink)}
+nav.tabs button[aria-current="page"]{color:var(--ink); border-bottom-color:var(--accent)}
+.badge{min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--bad); color:var(--on-bad); font-size:11px; font-weight:700; display:inline-grid; place-items:center}
+
+.banner{background:var(--accent-soft); border:1px solid var(--line); border-radius:10px; padding:10px 14px; display:flex; gap:12px; align-items:center; flex-wrap:wrap; margin-bottom:16px}
+.banner label{font-weight:600}
+.banner select{max-width:100%}
+
+.card{background:var(--surface); border:1px solid var(--line); border-radius:10px; padding:16px; min-width:0}
+.card > h2,.card > h3{margin-bottom:10px}
+.stack{display:flex; flex-direction:column; gap:16px}
+.grid{display:grid; gap:16px}
+.g-kpi{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.g-2{grid-template-columns:minmax(0,3fr) minmax(0,2fr)}
+.g-3{grid-template-columns:repeat(auto-fit,minmax(280px,1fr))}
+@media (max-width:760px){.g-2{grid-template-columns:minmax(0,1fr)}}
+.kpi .label{font-size:12px; font-weight:600; color:var(--muted); letter-spacing:.06em; text-transform:uppercase}
+.kpi .value{font-family:var(--font-display); font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.15; margin-top:4px}
+.kpi .sub{color:var(--muted); font-size:13px; margin-top:2px}
+.sec-head{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:12px}
+
+.pill{display:inline-flex; align-items:center; gap:5px; padding:2px 9px; border-radius:999px; font-size:12px; font-weight:600; white-space:nowrap}
+.pill::before{content:""; width:6px; height:6px; border-radius:50%; background:currentColor}
+.p-good{background:var(--good-soft); color:var(--good)}
+.p-warn{background:var(--warn-soft); color:var(--warn)}
+.p-bad{background:var(--bad-soft); color:var(--bad)}
+.p-info{background:var(--info-soft); color:var(--info)}
+.p-neutral{background:var(--surface-2); color:var(--muted); border:1px solid var(--line)}
+.sample{display:inline-flex; font-size:11px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; color:var(--muted); border:1px dashed var(--line); border-radius:6px; padding:1px 7px}
+
+.btn{border:1px solid var(--line); background:var(--surface); border-radius:8px; padding:8px 14px; font-weight:600; cursor:pointer; white-space:nowrap}
+.btn:hover{background:var(--surface-2)}
+.btn.sm{padding:5px 10px; font-size:13px}
+.btn.primary{background:var(--accent); border-color:var(--accent); color:var(--accent-ink)}
+.btn.primary:hover{filter:brightness(1.08)}
+.btn[disabled]{opacity:.5; cursor:not-allowed}
+.link{border:0; background:none; padding:0; color:var(--accent); font-weight:600; cursor:pointer; text-decoration:underline; text-underline-offset:3px}
+
+label.f{display:flex; flex-direction:column; gap:4px; font-size:12px; font-weight:600; color:var(--muted); min-width:0}
+input[type=text],input[type=number],input[type=date],select,textarea{
+  width:100%; background:var(--surface); border:1px solid var(--line); border-radius:8px; padding:8px 10px; color:var(--ink); font-weight:400; font-size:14px; min-width:0
+}
+textarea{resize:vertical; min-height:72px}
+.form-grid{display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; align-items:end}
+.form-grid .wide{grid-column:1/-1}
+
+.tbl-wrap{overflow-x:auto}
+table{width:100%; border-collapse:collapse; min-width:620px}
+th{text-align:left; font-size:12px; font-weight:600; color:var(--muted); letter-spacing:.05em; text-transform:uppercase; padding:8px 10px; border-bottom:1px solid var(--line)}
+td{padding:11px 10px; border-bottom:1px solid var(--line); vertical-align:middle}
+tr:last-child td{border-bottom:0}
+td.r,th.r{text-align:right}
+
+ul.list{list-style:none; margin:0; padding:0}
+ul.list > li{padding:12px 0; border-bottom:1px solid var(--line)}
+ul.list > li:last-child{border-bottom:0; padding-bottom:0}
+ul.list > li:first-child{padding-top:0}
+.att{display:grid; grid-template-columns:10px minmax(0,1fr) auto; gap:12px; align-items:center}
+.dot{width:8px; height:8px; border-radius:50%}
+.d-bad{background:var(--bad)} .d-warn{background:var(--warn)} .d-info{background:var(--info)}
+.att-t{font-weight:600; overflow-wrap:anywhere}
+.row{display:flex; align-items:center; justify-content:space-between; gap:12px; flex-wrap:wrap}
+.row > *{min-width:0}
+
+.bar{height:8px; border-radius:4px; background:var(--surface-2); border:1px solid var(--line); overflow:hidden; margin:10px 0}
+.bar > span{display:block; height:100%; background:var(--accent); transition:width .3s}
+.counts{display:flex; gap:16px; flex-wrap:wrap; font-size:13px}
+.counts b{font-weight:600}
+
+.chips{display:flex; gap:6px; flex-wrap:wrap; margin-bottom:14px}
+.chip{border:1px solid var(--line); background:var(--surface); border-radius:999px; padding:5px 12px; font-weight:600; cursor:pointer; color:var(--muted)}
+.chip[aria-pressed="true"]{background:var(--ink); border-color:var(--ink); color:var(--bg)}
+
+.req h3{overflow-wrap:anywhere}
+.req .meta{color:var(--muted); font-size:13px; overflow-wrap:anywhere}
+.req p.detail{margin:10px 0 12px; overflow-wrap:anywhere}
+.pills{display:flex; gap:6px; flex-wrap:wrap}
+.steps{display:grid; grid-template-columns:repeat(4,1fr); gap:4px; margin:12px 0 4px}
+.step{font-size:11px; font-weight:600; color:var(--muted)}
+.step i{display:block; height:4px; border-radius:2px; background:var(--line); margin-bottom:4px}
+.step.on i{background:var(--accent)}
+.step.on{color:var(--ink)}
+.steps.done .step i{background:var(--good)}
+
+.rent-amt{font-family:var(--font-display); font-size:38px; font-weight:600; letter-spacing:-.02em; line-height:1.1}
+.note{font-size:12.5px; color:var(--muted)}
+
+.thread{display:flex; flex-direction:column; gap:8px; max-height:420px; min-height:140px; overflow-y:auto; padding:2px 2px 8px}
+.bub{max-width:82%; padding:8px 12px; border-radius:12px; background:var(--surface-2); border:1px solid var(--line); overflow-wrap:anywhere; white-space:pre-wrap}
+.bub.me{align-self:flex-end; background:var(--accent-soft); border-color:transparent}
+.bub.sys{align-self:center; max-width:94%; background:transparent; border:1px dashed var(--line); font-size:13px; color:var(--muted)}
+.bub .when{display:block; font-size:11px; color:var(--muted); margin-top:2px}
+.composer{display:flex; gap:8px; align-items:flex-end; margin-top:10px}
+.composer textarea{min-height:44px}
+
+.empty{border:1px dashed var(--line); border-radius:10px; padding:22px; text-align:center; color:var(--muted)}
+.empty b{display:block; color:var(--ink); font-family:var(--font-display); font-size:16px; margin-bottom:4px}
+.foot{margin-top:28px; font-size:12.5px; color:var(--muted); display:flex; gap:10px; flex-wrap:wrap; align-items:center}
+#toast{position:fixed; left:50%; transform:translateX(-50%); bottom:calc(16px + env(safe-area-inset-bottom,0px)); max-width:min(92vw,440px); background:var(--ink); color:var(--bg); padding:10px 16px; border-radius:10px; font-weight:500; z-index:20; opacity:0; pointer-events:none; transition:opacity .2s}
+#toast.show{opacity:1}
+#toast.err{background:var(--bad); color:var(--on-bad)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+
+<div class="wrap">
+  <header class="top" id="hdr"></header>
+  <div id="app"><div class="empty"><b>Loading Propassist</b>Fetching your properties, rent and requests.</div></div>
+  <div class="foot" id="foot"></div>
+</div>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<script>
+(function(){
+'use strict';
+
+/* ---------- constants ---------- */
+const VENDORS=[
+  {id:'v-blueline',name:'BlueLine Plumbing',trade:'plumbing'},
+  {id:'v-spark',name:'Spark Electric',trade:'electrical'},
+  {id:'v-warmair',name:'WarmAir Heating & Cooling',trade:'heating'},
+  {id:'v-homeworks',name:'HomeWorks Appliance Repair',trade:'appliance'},
+  {id:'v-fixright',name:'FixRight Handyman',trade:'general'}
+];
+const CAT_LABEL={plumbing:'Plumbing',electrical:'Electrical',heating:'Heating & cooling',appliance:'Appliance',general:'General repair'};
+const STATUS={open:['Open','warn'],scheduled:['Scheduled','info'],in_progress:['In progress','info'],done:['Done','good']};
+const STEPS=['open','scheduled','in_progress','done'];
+const PRIO={urgent:['Urgent','bad'],normal:['Normal','neutral'],low:['Low','neutral']};
+const RENT={paid:['Paid','good'],due:['Due','info'],late:['Late','bad'],vacant:['Vacant','neutral'],unpaid:['Unpaid','bad']};
+const EXP_CATS=['Repairs and maintenance','Utilities','Insurance','Property tax','Management and fees','Other'];
+const STAGES=[['inquiry','New inquiry'],['tour','Tour scheduled'],['applied','Application received'],['approved','Approved'],['lease_signed','Lease signed'],['moved_in','Moved in'],['declined','Declined']];
+const SOURCES=['Listing site','Referral','Walk-in','Social media','Other'];
+const MI_STEPS=[['lease','Lease e-signed'],['funds','Deposit and first month received'],['verify','ID and renters insurance verified'],['access','Access instructions sent']];
+const MI_HOURS=24;
+const RSTATUS={offered:['Offered','info'],accepted:['Accepted','good'],declined:['Declined','bad'],applied:['Applied to lease','neutral']};
+
+/* ---------- helpers ---------- */
+const $=s=>document.querySelector(s);
+const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money=n=>new Intl.NumberFormat('en-US',{style:'currency',currency:'USD',maximumFractionDigits:0}).format(Number(n)||0);
+const pad=n=>String(n).padStart(2,'0');
+const sum=a=>a.reduce((x,y)=>x+(Number(y)||0),0);
+const now=new Date();
+const MONTH=now.getFullYear()+'-'+pad(now.getMonth()+1);
+const MLABEL=now.toLocaleDateString('en-US',{month:'long',year:'numeric'});
+function pd(s){
+  if(!s) return null;
+  if(/^\d{4}-\d{2}-\d{2}$/.test(s)){const p=s.split('-').map(Number);return new Date(p[0],p[1]-1,p[2]);}
+  const d=new Date(s); return isNaN(d)?null:d;
+}
+const fmtD=s=>{const d=pd(s); return d?d.toLocaleDateString('en-US',{month:'short',day:'numeric',year:d.getFullYear()===now.getFullYear()?undefined:'numeric'}):'—';};
+const fmtDT=s=>{const d=pd(s); return d?d.toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}):'';};
+const monthLabel=m=>{const p=String(m).split('-').map(Number); return new Date(p[0],(p[1]||1)-1,1).toLocaleDateString('en-US',{month:'long',year:'numeric'});};
+function ordinal(n){n=Number(n)||1; const s=['th','st','nd','rd'],v=n%100; return n+(s[(v-20)%10]||s[v]||s[0]);}
+const pill=(label,kind)=>'<span class="pill p-'+kind+'">'+esc(label)+'</span>';
+const opts=(list,sel)=>list.map(x=>'<option value="'+esc(x[0])+'"'+(x[0]===sel?' selected':'')+'>'+esc(x[1])+'</option>').join('');
+
+/* ---------- state ---------- */
+const S={
+  db:null,user:null,manager:false,canWrite:true,uid:null,
+  units:[],payments:[],requests:[],messages:[],applicants:[],renewals:[],expenses:[],repMonth:'',repPeriod:'month',repProp:'all',
+  cols:['units','payments','requests','messages','renewals','expenses','applicants','settings'],settings:[],tips:{},chat:{prospect:[],tenant:[]},chatBusy:false,stageFilter:'all',
+  loaded:{},slow:false,err:'',
+  profile:null,profileLoaded:false,joinErr:'',
+  mode:'owner',tab:'overview',unitId:null,filter:'all',threadUnit:null,ready:false
+};
+
+const unitOf=id=>S.units.find(u=>u.id===id)||null;
+const ulH=u=>u?esc(u.property)+' · '+esc(u.name):'Unknown unit';
+function rentStatus(u){
+  if(!u||!u.tenantName) return 'vacant';
+  const p=S.payments.find(x=>x.unitId===u.id&&x.month===MONTH);
+  if(p&&p.status==='paid') return 'paid';
+  return now.getDate()>(Number(u.dueDay)||1)?'late':'due';
+}
+const paymentOf=u=>S.payments.find(x=>x.unitId===u.id&&x.month===MONTH&&x.status==='paid')||null;
+function myUnit(){
+  const id=S.manager?S.unitId:(S.profile&&S.profile.unitId);
+  return S.units.find(u=>u.id===id)||null;
+}
+const occupied=()=>S.units.filter(u=>u.tenantName);
+function sortedUnits(){return S.units.slice().sort((a,b)=>(a.property+a.name).localeCompare(b.property+b.name));}
+
+/* ---------- toast + writes ---------- */
+let toastT=null;
+function toast(msg,isErr){
+  const t=$('#toast'); t.textContent=msg; t.className='show'+(isErr?' err':'');
+  clearTimeout(toastT); toastT=setTimeout(()=>{t.className='';},3800);
+}
+function errMsg(e){
+  const c=e&&e.code;
+  if(c==='invalid_argument') return 'Your access level does not allow this change. Ask the owner for Contributor access.';
+  if(c==='quota_exceeded') return 'Storage limit reached. Delete old records and try again.';
+  return 'Could not save that. Try again in a moment.';
+}
+async function run(okMsg,fn){
+  if(!S.db){toast('Storage is not available in this view.',true);return false;}
+  try{await fn(); if(okMsg) toast(okMsg); return true;}catch(e){toast(errMsg(e),true);return false;}
+}
+
+/* ---------- rendering ---------- */
+let raf=0;
+function schedule(){ if(raf) return; raf=requestAnimationFrame(()=>{raf=0;render();}); }
+
+function keepState(){
+  const m={}; document.querySelectorAll('#app [data-keep][id]').forEach(el=>{m[el.id]=el.value;});
+  const a=document.activeElement;
+  return {m:m,focus:a&&a.id&&a.hasAttribute&&a.hasAttribute('data-keep')?a.id:null,s:a&&a.selectionStart,e:a&&a.selectionEnd};
+}
+function restoreState(k){
+  Object.keys(k.m).forEach(id=>{const el=document.getElementById(id); if(el&&el.value!==k.m[id]) el.value=k.m[id];});
+  if(k.focus){const el=document.getElementById(k.focus); if(el){el.focus(); try{el.setSelectionRange(k.s,k.e);}catch(e){}}}
+}
+
+function tabsFor(){
+  if(S.mode==='owner'){
+    const open=S.requests.filter(r=>r.status==='open').length;
+    return [['overview','Overview'],['units','Units'],['leasing','Leasing'],['rent','Rent'],['maintenance','Maintenance',open],['reports','Reports'],['messages','Messages']];
+  }
+  return [['home','Home'],['requests','Maintenance'],['messages','Messages']];
+}
+
+function render(){
+  const k=keepState();
+  renderHeader();
+  const app=$('#app');
+  app.innerHTML=body();
+  restoreState(k);
+  const th=document.querySelector('.thread'); if(th) th.scrollTop=th.scrollHeight;
+  renderFoot();
+}
+
+function renderHeader(){
+  const portal=S.manager?(S.mode==='owner'?'Owner portal':'Tenant preview'):(S.profile&&myUnit()?'Tenant portal':'');
+  let h='<div class="brand"><svg viewBox="0 0 28 28" width="28" height="28" aria-hidden="true"><rect width="28" height="28" rx="7" fill="var(--accent)"/><path d="M7 14.2 14 8l7 6.2V21H7z" fill="none" stroke="var(--accent-ink)" stroke-width="1.8" stroke-linejoin="round"/><circle cx="14" cy="16" r="1.6" fill="var(--accent-ink)"/></svg><span>Propassist</span>'+(portal?'<span class="role">'+esc(portal)+'</span>':'')+'</div>';
+  if(S.manager){
+    h+='<div class="seg" role="group" aria-label="Portal"><button type="button" data-act="mode" data-id="owner" aria-pressed="'+(S.mode==='owner')+'">Owner</button><button type="button" data-act="mode" data-id="tenant" aria-pressed="'+(S.mode==='tenant')+'">Tenant</button></div>';
+  }
+  $('#hdr').innerHTML=h;
+}
+
+function renderFoot(){
+  const anySample=S.units.some(u=>u.sample);
+  $('#foot').innerHTML=(anySample?'<span class="sample">Sample data</span>':'')+'<span>Propassist.co &middot; Demo. Rent payments are simulated and no money moves.</span><button class="link" type="button" data-act="reset">Reset demo</button>';
+}
+
+function body(){
+  if(!S.ready) return '<div class="empty"><b>Loading Propassist</b>Fetching your properties, rent and requests.</div>';
+  if(!S.db) return '<div class="empty"><b>Sign in to open Propassist</b>Rent, requests and messages are stored with your Claude account. Open this page while signed in.</div>';
+  const allLoaded=S.cols.every(n=>S.loaded[n]);
+  if(!allLoaded){
+    return '<div class="empty"><b>'+(S.err?'Could not load your data':'Loading Propassist')+'</b>'+(S.err?'Reload the page to try again.':(S.slow?'This is taking longer than usual. The data may be out of date.':'Fetching your properties, rent and requests.'))+'</div>';
+  }
+  if(!S.manager){
+    if(!S.uid) return '<div class="empty"><b>Sign in to link your unit</b>Your property owner will give you a unit code once you are signed in.</div>';
+    if(!S.profileLoaded) return '<div class="empty"><b>Loading your unit</b>One moment.</div>';
+    if(!myUnit()) return vJoin();
+  } else if(S.mode==='tenant' && !myUnit()){
+    return preview()+'<div class="empty"><b>No occupied units yet</b>Add a unit with a tenant in the Owner portal to preview what they see.</div>';
+  }
+  const tabs=tabsFor();
+  if(!tabs.some(t=>t[0]===S.tab)) S.tab=tabs[0][0];
+  let nav='<nav class="tabs" aria-label="Sections">'+tabs.map(t=>'<button type="button" data-act="tab" data-id="'+t[0]+'"'+(S.tab===t[0]?' aria-current="page"':'')+'>'+esc(t[1])+(t[2]?'<span class="badge" aria-label="'+t[2]+' open">'+t[2]+'</span>':'')+'</button>').join('')+'</nav>';
+  let view='';
+  if(S.mode==='owner'){
+    view=({overview:vOverview,units:vUnits,leasing:vLeasing,rent:vRent,maintenance:vMaint,reports:vReports,messages:vOwnerMsgs})[S.tab]();
+  } else {
+    view=({home:tHome,requests:tRequests,messages:tMsgs})[S.tab]();
+  }
+  return (S.guide?demoGuide():'')+(S.manager&&S.mode==='tenant'?preview():'')+nav+view;
+}
+
+function preview(){
+  const occ=occupied();
+  const sel=occ.length?'<label for="pv-unit" class="sr">Previewing unit</label><select id="pv-unit" data-change="pvUnit">'+opts(occ.map(u=>[u.id,u.property+' · '+u.name+' ('+u.tenantName+')']),S.unitId)+'</select>':'';
+  return '<div class="banner"><span><b>Tenant view.</b> Choose a tenant. Switch to Owner to respond to what they do.</span>'+sel+'</div>';
+}
+
+/* ---------- owner views ---------- */
+function emptyPortfolio(){
+  return '<div class="empty"><b>No properties yet</b>Add a unit to start tracking rent, maintenance requests and tenant messages.<div style="margin-top:12px"><button class="btn primary" type="button" data-act="tab" data-id="units">Add your first unit</button></div></div>';
+}
+
+function vOverview(){
+  if(!S.units.length) return emptyPortfolio();
+  const occ=occupied();
+  const expected=sum(occ.map(u=>u.rent));
+  const paidU=occ.filter(u=>rentStatus(u)==='paid'), lateU=occ.filter(u=>rentStatus(u)==='late'), dueU=occ.filter(u=>rentStatus(u)==='due');
+  const collected=sum(paidU.map(u=>u.rent));
+  const pct=expected?Math.round(collected/expected*100):0;
+  const openReqs=S.requests.filter(r=>r.status!=='done');
+  const urgent=openReqs.filter(r=>r.priority==='urgent');
+  const ending=occ.map(u=>{const d=pd(u.leaseEnd); return {u:u,days:d?Math.ceil((d-now)/864e5):null};}).filter(x=>x.days!==null&&x.days<=90).sort((a,b)=>a.days-b.days);
+
+  const items=[];
+  lateU.forEach(u=>items.push('<li class="att"><span class="dot d-bad"></span><div><div class="att-t">'+esc(u.tenantName)+' · rent overdue</div><div class="muted">'+ulH(u)+' · '+money(u.rent)+' was due on the '+ordinal(u.dueDay)+'</div></div><button class="btn sm" type="button" data-act="remind" data-id="'+esc(u.id)+'">Send reminder</button></li>'));
+  S.requests.filter(r=>r.status==='open').sort((a,b)=>(b.priority==='urgent')-(a.priority==='urgent')).slice(0,5).forEach(r=>{
+    items.push('<li class="att"><span class="dot d-'+(r.priority==='urgent'?'bad':'warn')+'"></span><div><div class="att-t">'+esc(r.title)+'</div><div class="muted">'+ulH(unitOf(r.unitId))+' · '+esc(CAT_LABEL[r.category]||'General repair')+' · opened '+fmtD(r.createdAt)+'</div></div><button class="btn sm" type="button" data-act="tab" data-id="maintenance">Review</button></li>');
+  });
+  ending.forEach(x=>items.push('<li class="att"><span class="dot d-info"></span><div><div class="att-t">Lease ending: '+esc(x.u.tenantName)+'</div><div class="muted">'+ulH(x.u)+' · '+(x.days<0?'ended '+fmtD(x.u.leaseEnd):'ends '+fmtD(x.u.leaseEnd)+' ('+x.days+' days)')+'</div></div><button class="btn sm" type="button" data-act="openThread" data-id="'+esc(x.u.id)+'">Message</button></li>'));
+
+  S.renewals.filter(r=>r.status==='accepted'||r.status==='declined').forEach(r=>{
+    const u=unitOf(r.unitId); if(!u) return;
+    items.push('<li class="att"><span class="dot d-'+(r.status==='accepted'?'info':'warn')+'"></span><div><div class="att-t">Renewal '+r.status+': '+esc(u.tenantName)+'</div><div class="muted">'+ulH(u)+' · offered '+money(r.offerRent)+' per month</div></div><button class="btn sm" type="button" data-act="tab" data-id="leasing">Review</button></li>');
+  });
+
+  return '<div class="stack">'+
+   '<div class="grid g-kpi">'+
+    kpi('Occupancy',occ.length+' of '+S.units.length,'units occupied')+
+    kpi(MLABEL.split(' ')[0]+' rent',money(collected),'of '+money(expected)+' expected')+
+    kpi('Open requests',String(openReqs.length),urgent.length+' urgent')+
+    kpi('Leases ending',String(ending.length),'within 90 days')+
+   '</div>'+
+   '<div class="grid g-2">'+
+    '<section class="card"><h2>Needs attention</h2>'+(items.length?'<ul class="list">'+items.join('')+'</ul>':'<div class="empty"><b>All clear</b>No overdue rent, new requests or expiring leases.</div>')+'</section>'+
+    '<section class="card"><h2>'+esc(MLABEL)+' rent</h2><div class="num"><span class="rent-amt" style="font-size:28px">'+pct+'%</span> <span class="muted">collected</span></div><div class="bar" role="img" aria-label="'+pct+' percent of rent collected"><span style="width:'+pct+'%"></span></div><div class="counts"><span><b>'+paidU.length+'</b> paid</span><span><b>'+dueU.length+'</b> due</span><span><b>'+lateU.length+'</b> late</span></div><p class="note" style="margin-top:12px">Late means unpaid after the unit\'s due day.</p><div style="margin-top:12px"><button class="btn sm" type="button" data-act="tab" data-id="rent">Open rent ledger</button></div></section>'+
+   '</div></div>';
+}
+
+/* ---------- reports ---------- */
+function monthKey(s){const d=pd(s); return d?d.getFullYear()+'-'+pad(d.getMonth()+1):'';}
+function monthOptions(){
+  const out=[];
+  for(let i=0;i<12;i++){const d=new Date(now.getFullYear(),now.getMonth()-i,1); const k=d.getFullYear()+'-'+pad(d.getMonth()+1); out.push([k,monthLabel(k)]);}
+  return out;
+}
+const feePct=()=>{const x=S.settings.find(y=>y.id==='main'); return Math.max(0,Math.min(100,Number(x&&x.feePct)||0));};
+function periodMonths(m,per){
+  const y=Number(m.slice(0,4)), mo=Number(m.slice(5,7));
+  const a=per==='quarter'?Math.floor((mo-1)/3)*3+1:(per==='year'?1:mo);
+  const out=[]; for(let i=a;i<=mo;i++) out.push(y+'-'+pad(i)); return out;
+}
+function periodLabel(m,per){
+  const y=m.slice(0,4), mo=Number(m.slice(5,7));
+  if(per==='quarter') return 'Q'+(Math.floor((mo-1)/3)+1)+' '+y+(mo%3?' (to '+monthLabel(m).split(' ')[0]+')':'');
+  if(per==='year') return y+' year to date'+(mo<12?' (to '+monthLabel(m).split(' ')[0]+')':'');
+  return monthLabel(m);
+}
+function reportData(){
+  const m=S.repMonth||MONTH, prop=S.repProp||'all', per=S.repPeriod||'month';
+  const ms=periodMonths(m,per);
+  const units=sortedUnits().filter(u=>prop==='all'||u.property===prop);
+  const ids=new Set(units.map(u=>u.id));
+  const occ=units.filter(u=>u.tenantName);
+  const vacant=units.filter(u=>!u.tenantName);
+  const rows=occ.map(u=>{
+    const ps=S.payments.filter(x=>x.unitId===u.id&&ms.includes(x.month)&&x.status==='paid');
+    const p=ps.length?ps[ps.length-1]:null;
+    const got=sum(ps.map(x=>x.amount));
+    let st;
+    if(ms.length>1){st=got>=u.rent*ms.length?'paid':(got>0?'unpaid':(m<MONTH?'unpaid':'due'));}
+    else if(p) st='paid'; else if(m===MONTH) st=rentStatus(u); else st=(m<MONTH)?'unpaid':'due';
+    return {u:u,p:p,st:st,got:got,exp:u.rent*ms.length};
+  });
+  const expected=sum(occ.map(u=>u.rent))*ms.length;
+  const collected=sum(S.payments.filter(x=>ms.includes(x.month)&&x.status==='paid'&&ids.has(x.unitId)).map(x=>x.amount));
+  const pct=expected?Math.round(collected/expected*100):0;
+  const reqs=S.requests.filter(r=>ids.has(r.unitId));
+  const opened=reqs.filter(r=>ms.includes(monthKey(r.createdAt)));
+  const done=reqs.filter(r=>r.status==='done'&&ms.includes(monthKey(r.updatedAt||r.createdAt)));
+  const stillOpen=reqs.filter(r=>r.status!=='done');
+  const exps=S.expenses.filter(e=>ms.includes(monthKey(e.date))&&(prop==='all'||e.property===prop)).sort((a,b)=>String(a.date).localeCompare(String(b.date)));
+  const expTotal=sum(exps.map(e=>e.amount));
+  const byCat=EXP_CATS.map(c=>[c,sum(exps.filter(e=>e.category===c).map(e=>e.amount))]).filter(x=>x[1]>0);
+  const ending=occ.map(u=>{const d=pd(u.leaseEnd); return {u:u,days:d?Math.ceil((d-now)/864e5):null};}).filter(x=>x.days!==null&&x.days<=90).sort((a,b)=>a.days-b.days);
+  const apps=S.applicants.filter(a=>ids.has(a.unitId)&&ms.includes(monthKey(a.createdAt)));
+  const props=Array.from(new Set(S.units.map(u=>u.property))).sort();
+  return {m:m,per:per,ms:ms,label:periodLabel(m,per),prop:prop,units:units,occ:occ,vacant:vacant,rows:rows,expected:expected,collected:collected,pct:pct,opened:opened,done:done,stillOpen:stillOpen,exps:exps,expTotal:expTotal,byCat:byCat,noi:collected-expTotal,feePct:feePct(),fee:Math.round(collected*feePct())/100,ownerNet:collected-expTotal-Math.round(collected*feePct())/100,ending:ending,apps:apps,props:props,askVacant:sum(vacant.map(u=>u.rent))};
+}
+function packageHtml(d){
+  const e=esc, today=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+  const scope=d.prop==='all'?'All properties':d.prop;
+  const st={paid:['Paid','#17703F','#DDF1E5'],due:['Due','#1F4FA8','#DEE8FA'],late:['Late','#B0281C','#FBE0DC'],unpaid:['Unpaid','#B0281C','#FBE0DC'],vacant:['Vacant','#566870','#EEF2F3']};
+  const chip=k=>{const x=st[k]||st.due;return '<span class="chip" style="color:'+x[1]+';background:'+x[2]+'">'+x[0]+'</span>';};
+  const multi=d.ms.length>1;
+  const maxCat=Math.max.apply(null,d.byCat.map(x=>x[1]).concat([1]));
+  const rent=d.rows.map(r=>'<tr><td><b>'+e(r.u.property)+'</b><small>'+e(r.u.name)+'</small></td><td>'+e(r.u.tenantName)+'</td><td class="n">'+money(r.u.rent)+'</td>'+(multi?'<td class="n">'+money(r.got)+'</td>':'')+'<td>'+chip(r.st)+'</td>'+(multi?'':'<td>'+(r.p&&r.p.paidAt?fmtD(r.p.paidAt):'&mdash;')+'</td>')+'</tr>').join('');
+  const vac=d.vacant.map(u=>'<tr><td><b>'+e(u.property)+'</b><small>'+e(u.name)+'</small></td><td colspan="'+(multi?4:4)+'">Vacant, asking '+money(u.rent)+' per month'+(u.listed?' (listed)':'')+'</td></tr>').join('');
+  const maint=d.stillOpen.map(r=>'<li><b>'+e(r.title)+'</b><small>'+ulH(unitOf(r.unitId))+' &middot; '+e((STATUS[r.status]||STATUS.open)[0])+(r.priority==='urgent'?' &middot; urgent':'')+'</small></li>').join('');
+  const lease=d.ending.map(x=>'<li><b>'+e(x.u.tenantName)+'</b><small>'+ulH(x.u)+' &middot; ends '+fmtD(x.u.leaseEnd)+(x.days>=0?' ('+x.days+' days)':'')+'</small></li>').join('');
+  const exp=d.exps.map(x=>'<tr><td>'+fmtD(x.date)+'</td><td>'+e(x.property||'General')+'</td><td>'+e(x.category)+(x.note?'<small>'+e(x.note)+'</small>':'')+'</td><td class="n">'+money(x.amount)+'</td></tr>').join('');
+  const cats=d.byCat.map(c=>'<div class="cat"><span>'+e(c[0])+'</span><i style="width:'+Math.round(c[1]/maxCat*100)+'%"></i><b>'+money(c[1])+'</b></div>').join('');
+  const css='*{box-sizing:border-box}body{margin:0;background:#E9EEF0;color:#14232A;font:14px/1.5 Inter,system-ui,-apple-system,Segoe UI,sans-serif}.page{width:8.5in;max-width:100%;min-height:11in;margin:18px auto;background:#fff;padding:.7in .75in;box-shadow:0 2px 14px rgba(20,35,42,.12);position:relative}.cover{display:flex;flex-direction:column;justify-content:space-between;background:#0B3F46;color:#fff}.cover h1{font:700 44px/1.08 "Space Grotesk",Inter,sans-serif;letter-spacing:-.02em;margin:0 0 14px}.cover .k{letter-spacing:.14em;text-transform:uppercase;font-size:12px;font-weight:600;opacity:.75}.cover .sub{font-size:18px;opacity:.9}.cover .bar{width:64px;height:5px;background:#52C6D1;border-radius:3px;margin:26px 0}.cover .kp{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:30px}.cover .kp div{border-top:1px solid rgba(255,255,255,.25);padding-top:10px}.cover .kp b{display:block;font:600 30px "Space Grotesk",Inter,sans-serif}.cover .kp span{font-size:12px;opacity:.75;letter-spacing:.06em;text-transform:uppercase}.cover .fine{font-size:12px;opacity:.7}h2{font:600 22px "Space Grotesk",Inter,sans-serif;letter-spacing:-.01em;margin:0 0 4px;color:#0B3F46}.lead{color:#566870;margin:0 0 16px}section{margin-bottom:26px}table{width:100%;border-collapse:collapse}th{text-align:left;font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:#566870;border-bottom:2px solid #0B3F46;padding:6px 8px}td{padding:9px 8px;border-bottom:1px solid #D3DCDF;vertical-align:top}td.n,th.n{text-align:right;font-variant-numeric:tabular-nums}small{display:block;color:#566870;font-size:12px}.chip{display:inline-block;padding:1px 9px;border-radius:99px;font-size:12px;font-weight:600}.tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:22px}.tile{border:1px solid #D3DCDF;border-top:3px solid #0B6A73;border-radius:6px;padding:10px 12px}.tile span{font-size:11px;letter-spacing:.07em;text-transform:uppercase;color:#566870;font-weight:600}.tile b{display:block;font:600 24px "Space Grotesk",Inter,sans-serif}.tile small{font-size:12px}ul{list-style:none;margin:0;padding:0}li{padding:8px 0;border-bottom:1px solid #D3DCDF}li b{display:block}.cat{display:grid;grid-template-columns:170px 1fr 90px;gap:10px;align-items:center;margin:6px 0}.cat i{height:10px;background:#0B6A73;border-radius:5px;display:block}.cat b{text-align:right}.tot td{font-weight:700;border-top:2px solid #0B3F46;border-bottom:0}.noi{background:#EAF4F5;border-radius:8px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-top:14px}.noi b{font:600 26px "Space Grotesk",Inter,sans-serif;color:#0B3F46}.foot{position:absolute;left:.75in;right:.75in;bottom:.35in;font-size:11px;color:#566870;display:flex;justify-content:space-between}.two{display:grid;grid-template-columns:1fr 1fr;gap:26px}.empty{color:#566870;font-style:italic}@media(max-width:640px){.page{padding:28px 20px}.tiles{grid-template-columns:1fr 1fr}.two{grid-template-columns:1fr}.cat{grid-template-columns:110px 1fr 70px}.cover h1{font-size:32px}}@media print{body{background:#fff}.page{margin:0;box-shadow:none;width:auto;page-break-after:always;min-height:10in}.cover{-webkit-print-color-adjust:exact;print-color-adjust:exact}.chip,.tile,i,.noi{-webkit-print-color-adjust:exact;print-color-adjust:exact}@page{size:letter;margin:.3in}}';
+  const foot=n=>'<div class="foot"><span>Propassist &middot; '+e(scope)+' &middot; '+e(d.label)+'</span><span>Page '+n+'</span></div>';
+  const tiles='<div class="tiles"><div class="tile"><span>Rent collected</span><b>'+money(d.collected)+'</b><small>of '+money(d.expected)+' ('+d.pct+'%)</small></div><div class="tile"><span>Occupancy</span><b>'+d.occ.length+' of '+d.units.length+'</b><small>'+(d.vacant.length?d.vacant.length+' vacant':'fully occupied')+'</small></div><div class="tile"><span>Expenses</span><b>'+money(d.expTotal)+'</b><small>'+d.exps.length+' recorded</small></div><div class="tile"><span>Net operating income</span><b>'+money(d.noi)+'</b><small>collected minus expenses</small></div></div>';
+  return '<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Property report, '+e(d.label)+'</title><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap"><style>'+css+'</style></head><body>'+
+  '<div class="page cover"><div><div class="k">Landlord report package</div><div class="bar"></div><h1>'+e(d.label)+'</h1><div class="sub">'+e(scope)+'</div><div class="kp"><div><b>'+money(d.collected)+'</b><span>Rent collected</span></div><div><b>'+d.pct+'%</b><span>Collection rate</span></div><div><b>'+d.occ.length+' of '+d.units.length+'</b><span>Units occupied</span></div><div><b>'+money(d.noi)+'</b><span>Net operating income</span></div></div></div><div class="fine">Prepared '+e(today)+' from Propassist records. This is a management summary generated on that date, not a bank statement or an audited record.</div></div>'+
+  '<div class="page"><section><h2>Performance summary</h2><p class="lead">'+e(d.label)+' &middot; '+e(scope)+'</p>'+tiles+(d.byCat.length?'<h2 style="font-size:17px">Where the money went</h2>'+cats:'')+'<div class="noi"><span>Net operating income<small>Rent collected less recorded expenses. Excludes mortgage, depreciation and income tax.</small></span><b>'+money(d.noi)+'</b></div>'+(d.feePct>0?'<div class="noi" style="background:#F4F7F8"><span>Management fee ('+d.feePct+'% of rent collected)<small>Owner net after fee</small></span><b style="font-size:20px">'+money(d.fee)+' &middot; '+money(d.ownerNet)+'</b></div>':'')+'</section><section><h2>Rent roll</h2><p class="lead">'+(multi?'Rent billed is current rent times months in the period.':'Status as recorded in Propassist.')+'</p>'+(rent||vac?'<table><thead><tr><th>Unit</th><th>Tenant</th><th class="n">'+(multi?'Rent / mo':'Rent')+'</th>'+(multi?'<th class="n">Collected</th>':'')+'<th>Status</th>'+(multi?'':'<th>Paid</th>')+'</tr></thead><tbody>'+rent+vac+'<tr class="tot"><td colspan="2">Total</td><td class="n">'+money(sum(d.occ.map(u=>u.rent)))+'</td>'+(multi?'<td class="n">'+money(d.collected)+'</td>':'')+'<td></td>'+(multi?'':'<td></td>')+'</tr></tbody></table>':'<p class="empty">No units for this selection.</p>')+'</section>'+foot(2)+'</div>'+
+  '<div class="page"><div class="two"><section><h2>Maintenance</h2><p class="lead">'+d.opened.length+' opened, '+d.done.length+' completed, '+d.stillOpen.length+' open now.</p>'+(maint?'<ul>'+maint+'</ul>':'<p class="empty">Nothing open.</p>')+'</section><section><h2>Leases ending soon</h2><p class="lead">Within 90 days. '+d.apps.length+' new inquiries in the period.</p>'+(lease?'<ul>'+lease+'</ul>':'<p class="empty">No leases end in the next 90 days.</p>')+'</section></div><section><h2>Expense ledger</h2><p class="lead">Every recorded expense in the period.</p>'+(exp?'<table><thead><tr><th>Date</th><th>Property</th><th>Category</th><th class="n">Amount</th></tr></thead><tbody>'+exp+'<tr class="tot"><td colspan="3">Total</td><td class="n">'+money(d.expTotal)+'</td></tr></tbody></table>':'<p class="empty">No expenses recorded for this period.</p>')+'</section>'+foot(3)+'</div></body></html>';
+}
+function reportText(d){
+  const L=[];
+  L.push('Property report: '+d.label+(d.prop==='all'?' (all properties)':' ('+d.prop+')'));
+  L.push('Prepared '+new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'})+' from Propassist records.');
+  L.push('');
+  L.push('Occupancy: '+d.occ.length+' of '+d.units.length+' units occupied'+(d.vacant.length?' ('+d.vacant.length+' vacant, asking '+money(d.askVacant)+' per month)':''));
+  L.push('Rent expected: '+money(d.expected)+'. Collected: '+money(d.collected)+' ('+d.pct+'%).');
+  L.push('Expenses: '+money(d.expTotal)+'. Net operating income: '+money(d.noi)+'.');
+  if(d.feePct>0) L.push('Management fee ('+d.feePct+'% of rent collected): '+money(d.fee)+'. Owner net after fee: '+money(d.ownerNet)+'.');
+  L.push('');
+  L.push('Rent roll');
+  d.rows.forEach(r=>L.push('- '+r.u.property+' '+r.u.name+', '+r.u.tenantName+': '+money(r.u.rent)+', '+RENT[r.st][0]+(r.p&&r.p.paidAt?' ('+fmtD(r.p.paidAt)+')':'')));
+  L.push('');
+  L.push('Maintenance: '+d.opened.length+' opened this month, '+d.done.length+' completed, '+d.stillOpen.length+' open now.');
+  d.stillOpen.forEach(r=>L.push('- '+ulH(unitOf(r.unitId))+': '+r.title+' ('+(STATUS[r.status]||STATUS.open)[0]+')'));
+  L.push('');
+  L.push('Expenses'+(d.exps.length?'':': none recorded'));
+  d.exps.forEach(e=>L.push('- '+fmtD(e.date)+', '+e.category+(e.property?', '+e.property:'')+': '+money(e.amount)+(e.note?' ('+e.note+')':'')));
+  L.push('');
+  L.push('Leases ending within 90 days: '+(d.ending.length?d.ending.map(x=>x.u.tenantName+', '+ulH(x.u)+', '+fmtD(x.u.leaseEnd)).join('; '):'none'));
+  return L.join('\n');
+}
+function reportCsv(d){
+  const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
+  const out=[['Period','Property','Unit','Tenant','Monthly rent','Due day','Status','Paid date','Amount paid'].map(q).join(',')];
+  d.rows.forEach(r=>out.push([d.label,r.u.property,r.u.name,r.u.tenantName,r.u.rent,r.u.dueDay,RENT[r.st][0],r.p&&r.p.paidAt?fmtD(r.p.paidAt):'',r.p?r.p.amount:0].map(q).join(',')));
+  out.push('');
+  out.push(['Expense date','Property','Category','Note','Amount'].map(q).join(','));
+  d.exps.forEach(e=>out.push([e.date,e.property||'',e.category,e.note||'',e.amount].map(q).join(',')));
+  return out.join('\n');
+}
+function vReports(){
+  if(!S.units.length) return emptyPortfolio();
+  const d=reportData();
+  const perSel='<label class="f" for="rp-per">Report period<select id="rp-per" data-change="repPeriod">'+opts([['month','Single month'],['quarter','Quarter to date'],['year','Year to date']],d.per)+'</select></label>';
+  const monthSel='<label class="f" for="rp-month">Through month<select id="rp-month" data-change="repMonth">'+opts(monthOptions(),d.m)+'</select></label>';
+  const propSel='<label class="f" for="rp-prop">Property<select id="rp-prop" data-change="repProp">'+opts([['all','All properties']].concat(d.props.map(x=>[x,x])),d.prop)+'</select></label>';
+  const rentRows=d.rows.map(r=>'<tr><td><b>'+esc(r.u.property)+'</b><div class="muted">'+esc(r.u.name)+'</div></td><td>'+esc(r.u.tenantName)+'</td><td class="num">'+money(r.u.rent)+'</td><td>'+pill(RENT[r.st][0],RENT[r.st][1])+'</td><td>'+(r.p&&r.p.paidAt?fmtD(r.p.paidAt):'<span class="muted">—</span>')+'</td></tr>').join('');
+  const reqRows=d.stillOpen.sort((a,b)=>(b.priority==='urgent')-(a.priority==='urgent')).map(r=>'<li class="row"><span><b>'+esc(r.title)+'</b><span class="muted"> · '+ulH(unitOf(r.unitId))+'</span></span>'+pill((STATUS[r.status]||STATUS.open)[0],(STATUS[r.status]||STATUS.open)[1])+'</li>').join('');
+  const expRows=d.exps.map(e=>'<tr><td>'+fmtD(e.date)+'</td><td>'+esc(e.property||'—')+'</td><td>'+esc(e.category)+(e.note?'<div class="muted">'+esc(e.note)+'</div>':'')+'</td><td class="num r">'+money(e.amount)+'</td><td class="r"><button class="btn sm" type="button" data-act="delExpense" data-id="'+esc(e.id)+'" aria-label="Delete expense">Delete</button></td></tr>').join('');
+  const endRows=d.ending.map(x=>'<li class="row"><span><b>'+esc(x.u.tenantName)+'</b><span class="muted"> · '+ulH(x.u)+'</span></span><span>'+(x.days<0?'ended '+fmtD(x.u.leaseEnd):fmtD(x.u.leaseEnd)+' ('+x.days+' days)')+'</span></li>').join('');
+  const today=new Date().toISOString().slice(0,10);
+  const propOpts=d.props.map(x=>[x,x]);
+  return '<div class="stack">'+
+   '<section class="card"><div class="sec-head"><h2>Property reports</h2><div class="pills"><button class="btn sm primary" type="button" data-act="dlPackage">Download report package</button><button class="btn sm" type="button" data-act="copyReport">Copy report</button><button class="btn sm" type="button" data-act="copyCsv">Copy as CSV</button></div></div>'+
+   '<div class="form-grid">'+perSel+monthSel+propSel+'</div>'+
+   '<form data-form="saveFee" style="margin-top:14px"><div class="form-grid"><label class="f" for="fee-pct">Management fee (% of rent collected)<input type="number" id="fee-pct" name="feePct" data-keep min="0" max="100" step="0.5" value="'+esc(feePct()||'')+'" placeholder="0"></label><div><button class="btn sm" type="submit">Save fee</button></div></div><p class="note" style="margin-top:6px">Shown on the report as a separate line with owner net. Do not also log the same fee as an expense.</p></form>'+
+   '<p class="note" style="margin-top:10px">Tenants and lease dates are as they are today. Rent expected for a past month uses the units occupied now, so it can differ if a tenant moved during that month.</p></section>'+
+   '<div class="grid g-kpi">'+
+    kpi('Rent collected',money(d.collected),'of '+money(d.expected)+' expected ('+d.pct+'%)')+
+    kpi('Occupancy',d.occ.length+' of '+d.units.length,d.vacant.length?d.vacant.length+' vacant · '+money(d.askVacant)+' asking':'fully occupied')+
+    kpi('Expenses',money(d.expTotal),d.exps.length+' recorded')+
+    kpi('Net operating income',money(d.noi),'rent collected minus expenses')+(d.feePct>0?kpi('Owner net after fee',money(d.ownerNet),d.feePct+'% fee: '+money(d.fee)):'')+
+   '</div>'+
+   '<section class="card"><h2>Rent roll, '+esc(d.label)+'</h2>'+(d.rows.length?'<div class="tbl-wrap"><table><thead><tr><th>Property</th><th>Tenant</th><th class="r">Rent</th><th>Status</th><th>Paid</th></tr></thead><tbody>'+rentRows+'</tbody></table></div>':'<div class="empty"><b>No occupied units</b>Nothing to report for this selection.</div>')+'</section>'+
+   '<div class="grid g-2"><section class="card"><h2>Maintenance</h2><div class="counts" style="margin-bottom:10px"><span><b>'+d.opened.length+'</b> opened in '+esc(monthLabel(d.m).split(' ')[0])+'</span><span><b>'+d.done.length+'</b> completed</span><span><b>'+d.stillOpen.length+'</b> open now</span></div>'+(reqRows?'<ul class="list">'+reqRows+'</ul>':'<div class="empty"><b>Nothing open</b>All requests are done.</div>')+'</section>'+
+   '<section class="card"><h2>Leases ending within 90 days</h2>'+(endRows?'<ul class="list">'+endRows+'</ul>':'<div class="empty"><b>None</b>No leases end in the next 90 days.</div>')+'<p class="note" style="margin-top:12px">New inquiries in '+esc(monthLabel(d.m).split(' ')[0])+': '+d.apps.length+'.</p></section></div>'+
+   '<section class="card"><h2>Expenses, '+esc(d.label)+'</h2>'+(d.exps.length?'<div class="tbl-wrap"><table><thead><tr><th>Date</th><th>Property</th><th>Category</th><th class="r">Amount</th><th class="r"></th></tr></thead><tbody>'+expRows+'</tbody></table></div>':'<div class="empty"><b>No expenses recorded</b>Add repairs, utilities, insurance or fees below to see net operating income.</div>')+
+   '<form data-form="addExpense" style="margin-top:16px"><div class="form-grid">'+
+   '<label class="f" for="ex-date">Date<input type="date" id="ex-date" name="date" data-keep value="'+(d.m===MONTH?today:d.m+'-01')+'" required></label>'+
+   '<label class="f" for="ex-prop">Property<select id="ex-prop" name="property" data-keep>'+opts([['','All / general']].concat(propOpts),d.prop==='all'?'':d.prop)+'</select></label>'+
+   '<label class="f" for="ex-cat">Category<select id="ex-cat" name="category" data-keep>'+opts(EXP_CATS.map(x=>[x,x]),EXP_CATS[0])+'</select></label>'+
+   '<label class="f" for="ex-amt">Amount (USD)<input type="number" id="ex-amt" name="amount" data-keep min="0.01" step="0.01" placeholder="180" required></label>'+
+   '<label class="f wide" for="ex-note">Note<input type="text" id="ex-note" name="note" data-keep placeholder="Plumber visit, Unit A"></label>'+
+   '<div class="wide"><button class="btn primary" type="submit">Add expense</button></div></div></form></section>'+
+   '<section class="card"><div class="sec-head"><h2>Report package preview</h2><button class="btn sm primary" type="button" data-act="dlPackage">Download</button></div><p class="note" style="margin-bottom:10px">Cover page, summary, rent roll, maintenance, leases and expense ledger. Open the downloaded file in a browser and print it to PDF to send it on.</p><iframe title="Report package preview" sandbox="" srcdoc="'+esc(packageHtml(d))+'" style="width:100%;height:640px;border:1px solid var(--line);border-radius:8px;background:#fff"></iframe></section>'+
+   '</div>';
+}
+
+function kpi(l,v,s){return '<div class="card kpi"><div class="label">'+esc(l)+'</div><div class="value num">'+esc(v)+'</div><div class="sub">'+esc(s)+'</div></div>';}
+
+function vUnits(){
+  const rows=sortedUnits().map(u=>{
+    const st=rentStatus(u);
+    return '<tr><td><b>'+esc(u.property)+'</b><div class="muted">'+esc(u.name)+'</div></td><td>'+(u.tenantName?esc(u.tenantName):'<span class="muted">Vacant'+(u.listed?' · listed':'')+'</span>')+'</td><td class="num">'+money(u.rent)+'</td><td>'+ordinal(u.dueDay)+'</td><td>'+(u.leaseEnd?fmtD(u.leaseEnd):'—')+'</td><td>'+pill(RENT[st][0],RENT[st][1])+'</td><td>'+(u.code?'<span class="mono">'+esc(u.code)+'</span>':'<span class="muted">—</span>')+'</td></tr>';
+  }).join('');
+  return '<div class="stack"><section class="card"><div class="sec-head"><h2>Units</h2><span class="note">Share a unit code with a tenant so they can link their account.</span></div>'+
+   (S.units.length?'<div class="tbl-wrap"><table><thead><tr><th>Property</th><th>Tenant</th><th class="r">Rent</th><th>Due</th><th>Lease ends</th><th>'+esc(MLABEL.split(' ')[0])+'</th><th>Unit code</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<div class="empty"><b>No units yet</b>Add your first unit below.</div>')+
+   '</section>'+
+   '<section class="card"><h2>Add a unit</h2><form data-form="addUnit"><div class="form-grid">'+
+   '<label class="f" for="au-prop">Property address<input type="text" id="au-prop" name="property" data-keep placeholder="412 Alder St" required></label>'+
+   '<label class="f" for="au-name">Unit<input type="text" id="au-name" name="name" data-keep placeholder="Unit C" required></label>'+
+   '<label class="f" for="au-rent">Monthly rent (USD)<input type="number" id="au-rent" name="rent" data-keep min="1" step="1" placeholder="2400" required></label>'+
+   '<label class="f" for="au-due">Rent due day<input type="number" id="au-due" name="dueDay" data-keep min="1" max="28" value="1" required></label>'+
+   '<label class="f" for="au-tenant">Tenant name (leave empty if vacant)<input type="text" id="au-tenant" name="tenant" data-keep placeholder="Full name"></label>'+
+   '<label class="f" for="au-end">Lease ends<input type="date" id="au-end" name="leaseEnd" data-keep></label>'+
+   '<div class="wide"><button class="btn primary" type="submit">Add unit</button></div></div></form></section></div>';
+}
+
+function vRent(){
+  const occ=occupied().sort((a,b)=>{const o={late:0,due:1,paid:2}; return o[rentStatus(a)]-o[rentStatus(b)];});
+  const rows=occ.map(u=>{
+    const st=rentStatus(u), p=paymentOf(u);
+    let act='';
+    if(st!=='paid') act='<button class="btn sm" type="button" data-act="remind" data-id="'+esc(u.id)+'">Send reminder</button> <button class="btn sm primary" type="button" data-act="markPaid" data-id="'+esc(u.id)+'">Record payment</button>';
+    else act='<span class="muted">'+(p&&p.paidAt?'Paid '+fmtD(p.paidAt):'')+'</span>';
+    return '<tr><td><b>'+esc(u.tenantName)+'</b><div class="muted">'+ulH(u)+'</div></td><td class="num">'+money(u.rent)+'</td><td>'+ordinal(u.dueDay)+'</td><td>'+pill(RENT[st][0],RENT[st][1])+'</td><td class="r">'+act+'</td></tr>';
+  }).join('');
+  const hist=S.payments.slice().sort((a,b)=>String(b.paidAt).localeCompare(String(a.paidAt))).slice(0,12).map(p=>'<li class="row"><span><b>'+ulH(unitOf(p.unitId))+'</b><span class="muted"> · '+esc(monthLabel(p.month))+'</span></span><span class="num">'+money(p.amount)+' <span class="muted">· '+esc(p.method||'')+'</span></span></li>').join('');
+  return '<div class="stack"><section class="card"><div class="sec-head"><h2>'+esc(MLABEL)+' ledger</h2></div>'+
+   (occ.length?'<div class="tbl-wrap"><table><thead><tr><th>Tenant</th><th>Rent</th><th>Due</th><th>Status</th><th class="r">Action</th></tr></thead><tbody>'+rows+'</tbody></table></div>':'<div class="empty"><b>No occupied units</b>Rent appears here once a unit has a tenant.</div>')+
+   '</section><section class="card"><h2>Payment history</h2>'+(hist?'<ul class="list">'+hist+'</ul>':'<div class="empty"><b>No payments yet</b>Recorded and tenant payments will be listed here.</div>')+'</section></div>';
+}
+
+function vMaint(){
+  const f=S.filter;
+  const counts={all:S.requests.length};
+  Object.keys(STATUS).forEach(k=>{counts[k]=S.requests.filter(r=>r.status===k).length;});
+  const chips='<div class="chips" role="group" aria-label="Filter requests">'+[['all','All']].concat(Object.keys(STATUS).map(k=>[k,STATUS[k][0]])).map(c=>'<button type="button" class="chip" data-act="filter" data-id="'+c[0]+'" aria-pressed="'+(f===c[0])+'">'+esc(c[1])+' '+counts[c[0]]+'</button>').join('')+'</div>';
+  const list=S.requests.filter(r=>f==='all'||r.status===f).sort((a,b)=>{
+    const sa=a.status==='done'?1:0, sb=b.status==='done'?1:0; if(sa!==sb) return sa-sb;
+    const pa=a.priority==='urgent'?0:1, pb=b.priority==='urgent'?0:1; if(pa!==pb) return pa-pb;
+    return String(b.createdAt).localeCompare(String(a.createdAt));
+  });
+  const cards=list.map(r=>{
+    const u=unitOf(r.unitId);
+    const match=VENDORS.filter(v=>v.trade===r.category), other=VENDORS.filter(v=>v.trade!==r.category);
+    const vopts='<option value="">Unassigned</option>'+(match.length?'<optgroup label="Suggested">'+opts(match.map(v=>[v.id,v.name]),r.vendorId||'')+'</optgroup>':'')+'<optgroup label="Other vendors">'+opts(other.map(v=>[v.id,v.name]),r.vendorId||'')+'</optgroup>';
+    const pr=PRIO[r.priority]||PRIO.normal, st=STATUS[r.status]||STATUS.open;
+    return '<article class="card req"><div class="row"><div><h3>'+esc(r.title)+'</h3><div class="meta">'+ulH(u)+(u&&u.tenantName?' · '+esc(u.tenantName):'')+' · '+esc(CAT_LABEL[r.category]||'General repair')+' · opened '+fmtD(r.createdAt)+'</div></div><div class="pills">'+pill(pr[0],pr[1])+pill(st[0],st[1])+'</div></div>'+
+     (r.detail?'<p class="detail">'+esc(r.detail)+'</p>':'<div style="height:10px"></div>')+
+     '<div class="form-grid">'+
+     '<label class="f" for="st-'+esc(r.id)+'">Status<select id="st-'+esc(r.id)+'" data-change="reqStatus" data-id="'+esc(r.id)+'">'+opts(Object.keys(STATUS).map(k=>[k,STATUS[k][0]]),r.status)+'</select></label>'+
+     '<label class="f" for="vd-'+esc(r.id)+'">Vendor<select id="vd-'+esc(r.id)+'" data-change="reqVendor" data-id="'+esc(r.id)+'">'+vopts+'</select></label>'+
+     '<label class="f" for="dt-'+esc(r.id)+'">Scheduled for<input type="date" id="dt-'+esc(r.id)+'" data-change="reqDate" data-id="'+esc(r.id)+'" value="'+esc(r.scheduledFor||'')+'"></label>'+
+     '</div></article>';
+  }).join('');
+  return '<div class="stack"><div class="sec-head" style="margin:0"><h2>Maintenance requests</h2><span class="note">Vendors are sample marketplace listings.</span></div>'+chips+
+   (cards?'<div class="stack">'+cards+'</div>':'<div class="empty"><b>No requests here</b>'+(S.requests.length?'Nothing matches this filter.':'Requests tenants submit will show up here.')+'</div>')+'</div>';
+}
+
+function vOwnerMsgs(){
+  const occ=sortedUnits().filter(u=>u.tenantName);
+  if(!occ.length) return '<div class="empty"><b>No tenants to message</b>Add a unit with a tenant first.</div>';
+  if(!S.threadUnit||!occ.some(u=>u.id===S.threadUnit)){
+    const last=S.messages.filter(m=>occ.some(u=>u.id===m.unitId)).sort((a,b)=>pd(b.at)-pd(a.at))[0];
+    S.threadUnit=last?last.unitId:occ[0].id;
+  }
+  const chips='<div class="chips" role="group" aria-label="Conversations">'+occ.map(u=>'<button type="button" class="chip" data-act="thread" data-id="'+esc(u.id)+'" aria-pressed="'+(S.threadUnit===u.id)+'">'+esc(u.tenantName)+' · '+esc(u.name)+'</button>').join('')+'</div>';
+  const u=unitOf(S.threadUnit);
+  return '<section class="card"><div class="sec-head"><h2>Messages</h2><span class="note">'+ulH(u)+'</span></div>'+chips+thread(S.threadUnit,'owner')+'</section>';
+}
+
+function chatContext(kind){
+  if(kind==='tenant'){
+    const u=myUnit(); if(!u) return '';
+    const open=S.requests.filter(r=>r.unitId===u.id&&r.status!=='done').map(r=>r.title+' ('+(STATUS[r.status]||STATUS.open)[0]+')');
+    return 'Tenant: '+(u.tenantName||'')+'. Home: '+u.property+', '+u.name+'. Monthly rent: $'+u.rent+'. Rent due on day '+u.dueDay+' of each month. This month rent status: '+RENT[rentStatus(u)][0]+'. Lease ends: '+(u.leaseEnd||'unknown')+'. Open maintenance requests: '+(open.length?open.join('; '):'none')+'.';
+  }
+  const v=sortedUnits().filter(u=>!u.tenantName&&u.listed);
+  return 'Available units: '+(v.length?v.map(u=>u.property+', '+u.name+': $'+u.rent+' per month, '+(u.beds||'?')+' bed, '+(u.baths||'?')+' bath, '+(u.sqft||'?')+' sq ft. '+(u.listingNote||'')).join(' | '):'none listed right now')+'. Move-in: approved applicants are targeted to move in within 24 hours of approval, after the lease is signed, deposit and first month are received, and ID and renters insurance are verified.';
+}
+function vChat(kind){
+  const msgs=S.chat[kind]||[];
+  const title=kind==='tenant'?'Ask your assistant':'Leasing assistant preview';
+  const sub=kind==='tenant'?'Quick answers about your rent, lease and requests. For anything else, message your owner.':'This is what a prospective tenant could ask. It answers only from your listed units.';
+  const bub=msgs.map(m=>'<div class="bub'+(m.role==='user'?' me':'')+'">'+esc(m.content)+'<span class="when">'+(m.role==='user'?'You':'Assistant')+'</span></div>').join('');
+  return '<section class="card"><div class="sec-head"><h2>'+title+'</h2><span class="note">'+sub+'</span></div><div class="thread" tabindex="0" aria-label="Assistant conversation">'+(bub||'<div class="empty" style="margin:auto"><b>Ask anything</b>'+(kind==='tenant'?'When is my rent due? What is the status of my repair?':'What is available? How fast can I move in?')+'</div>')+(S.chatBusy?'<div class="bub"><span class="muted">Thinking...</span></div>':'')+'</div>'+
+   '<form class="composer" data-form="chat" data-kind="'+kind+'"><label class="sr" for="chat-in-'+kind+'">Question</label><textarea id="chat-in-'+kind+'" data-keep rows="2" placeholder="Type a question. Press Enter to send."></textarea><button class="btn primary" type="submit"'+(S.chatBusy?' disabled':'')+'>Ask</button></form>'+
+   '<p class="note" style="margin-top:8px">AI assistant. It can be wrong and cannot approve applications or change anything. Confirm important details with the owner.</p></section>';
+}
+function dur(ms){const m=Math.max(0,Math.round(ms/60000)); return Math.floor(m/60)+'h '+pad(m%60)+'m';}
+function miPanel(a,u){
+  if(!a.moveInStart){
+    if(a.stage==='approved'||a.stage==='lease_signed') return '<div class="note" style="margin-top:8px">24-hour move-in clock not started. <button class="btn sm" type="button" data-act="miStart" data-id="'+esc(a.id)+'">Start clock</button></div>';
+    return '';
+  }
+  const st=pd(a.moveInStart), spent=(a.moveInDone?pd(a.moveInDone):now)-st, limit=MI_HOURS*36e5;
+  const steps=a.steps||{}, done=MI_STEPS.filter(x=>steps[x[0]]).length, all=done===MI_STEPS.length;
+  if(a.stage==='moved_in'||a.moveInDone) return '<div class="note" style="margin-top:8px">Move-in took '+dur(spent)+' from approval (target '+MI_HOURS+'h).'+(spent<=limit?'':' Over target.')+'</div>';
+  const left=limit-spent, over=left<0;
+  const pct=Math.round(done/MI_STEPS.length*100);
+  const list=MI_STEPS.map(x=>'<label style="display:flex;gap:8px;align-items:center;padding:3px 0"><input type="checkbox" data-change="miStep" data-id="'+esc(a.id)+'|'+x[0]+'"'+(steps[x[0]]?' checked':'')+'> <span>'+esc(x[1])+(steps[x[0]]?' <span class="muted">· '+esc(fmtDT(steps[x[0]]))+'</span>':'')+'</span></label>').join('');
+  return '<div class="card" style="margin-top:10px;background:var(--surface-2)"><div class="row"><b>24-hour move-in</b>'+pill(over?'Over by '+dur(-left):dur(left)+' left',over?'bad':(left<4*36e5?'warn':'good'))+'</div><div class="bar" role="img" aria-label="'+pct+' percent of move-in steps done"><span style="width:'+pct+'%"></span></div><div class="note" style="margin-bottom:6px">Clock started '+esc(fmtDT(a.moveInStart))+' when the applicant was approved.</div>'+list+
+    (all&&u&&!u.tenantName?'<div style="margin-top:10px"><button class="btn sm primary" type="button" data-act="moveIn" data-id="'+esc(a.id)+'">Confirm move-in</button></div>':'')+'</div>';
+}
+function vLeasing(){
+  const vacant=sortedUnits().filter(u=>!u.tenantName);
+  const num=(id,pre,field,label,val,step)=>'<label class="f" for="'+pre+'-'+id+'">'+label+'<input type="number" id="'+pre+'-'+id+'" min="0" step="'+step+'" data-change="unitField" data-field="'+field+'" data-id="'+id+'" value="'+esc(val==null?'':val)+'"></label>';
+  const listCards=vacant.map(u=>{
+    const id=esc(u.id);
+    return '<article class="card req"><div class="row"><div><h3>'+ulH(u)+'</h3><div class="meta">Vacant · asking '+money(u.rent)+' per month</div></div>'+pill(u.listed?'Listed':'Not listed',u.listed?'good':'neutral')+'</div>'+
+      '<div class="form-grid" style="margin-top:12px">'+
+      '<label class="f" for="ls-'+id+'">Status<select id="ls-'+id+'" data-change="unitField" data-field="listed" data-id="'+id+'">'+opts([['yes','Listed'],['no','Not listed']],u.listed?'yes':'no')+'</select></label>'+
+      num(id,'rt','rent','Asking rent (USD)',u.rent,'1')+num(id,'bd','beds','Bedrooms',u.beds,'1')+num(id,'ba','baths','Bathrooms',u.baths,'0.5')+num(id,'sq','sqft','Square feet',u.sqft,'1')+
+      '<label class="f wide" for="ln-'+id+'">Listing description<textarea id="ln-'+id+'" data-change="unitField" data-field="listingNote" data-id="'+id+'">'+esc(u.listingNote||'')+'</textarea></label></div>'+
+      '<div style="margin-top:12px"><button class="btn sm" type="button" data-act="copyListing" data-id="'+id+'">Copy listing text</button> <button class="btn sm" type="button" data-act="copySocial" data-id="'+id+'">Copy social post</button> <button class="btn sm" type="button" data-act="suggestRent" data-id="'+id+'">Check asking rent</button></div>'+(S.tips[u.id]?'<p class="note" style="margin-top:10px;white-space:pre-wrap">'+esc(S.tips[u.id])+'</p>':'')+'</article>';
+  }).join('');
+
+  const f=S.stageFilter;
+  const counts={all:S.applicants.length};
+  STAGES.forEach(s=>{counts[s[0]]=S.applicants.filter(a=>a.stage===s[0]).length;});
+  const chips='<div class="chips" role="group" aria-label="Filter applicants">'+[['all','All']].concat(STAGES).map(c=>'<button type="button" class="chip" data-act="stageFilter" data-id="'+c[0]+'" aria-pressed="'+(f===c[0])+'">'+esc(c[1])+' '+counts[c[0]]+'</button>').join('')+'</div>';
+  const apps=S.applicants.filter(a=>f==='all'||a.stage===f).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt))).map(a=>{
+    const u=unitOf(a.unitId), id=esc(a.id);
+    return '<li><div class="row"><div style="overflow-wrap:anywhere"><b>'+esc(a.name)+'</b><div class="muted">'+(u?ulH(u):'Unit removed')+' · '+esc(a.source||'Other')+' · '+esc(fmtD(a.createdAt))+(a.contact?' · '+esc(a.contact):'')+'</div>'+(a.note?'<div class="note">'+esc(a.note)+'</div>':'')+'</div>'+
+      '<div class="row">'+(a.stage==='lease_signed'&&!a.moveInStart&&u&&!u.tenantName?'<button class="btn sm primary" type="button" data-act="moveIn" data-id="'+id+'">Move in</button>':'')+
+      '<label class="sr" for="sg-'+id+'">Stage for '+esc(a.name)+'</label><select id="sg-'+id+'" data-change="applicantStage" data-id="'+id+'">'+opts(STAGES,a.stage)+'</select></div></div>'+miPanel(a,u)+'</li>';
+  }).join('');
+  const addForm=vacant.length?'<form data-form="addApplicant" style="margin-top:16px"><div class="form-grid">'+
+    '<label class="f" for="ap-name">Name<input type="text" id="ap-name" name="name" data-keep maxlength="80" required></label>'+
+    '<label class="f" for="ap-contact">Email or phone<input type="text" id="ap-contact" name="contact" data-keep maxlength="80"></label>'+
+    '<label class="f" for="ap-unit">Unit<select id="ap-unit" name="unitId" data-keep>'+opts(vacant.map(u=>[u.id,u.property+' · '+u.name]),vacant[0].id)+'</select></label>'+
+    '<label class="f" for="ap-src">Source<select id="ap-src" name="source" data-keep>'+opts(SOURCES.map(s=>[s,s]),'Listing site')+'</select></label>'+
+    '<label class="f wide" for="ap-note">Note<input type="text" id="ap-note" name="note" data-keep maxlength="200" placeholder="Preferred move-in date, questions asked"></label>'+
+    '<div class="wide"><button class="btn primary" type="submit">Add applicant</button></div></div></form>':'<p class="muted" style="margin-top:12px">Add a vacant unit in Units to start collecting applicants.</p>';
+
+  const ending=occupied().map(u=>{const d=pd(u.leaseEnd); return {u:u,days:d?Math.ceil((d-now)/864e5):null};}).filter(x=>x.days!==null&&x.days<=120).sort((a,b)=>a.days-b.days);
+  const rens=ending.map(x=>{
+    const u=x.u, id=esc(u.id), r=S.renewals.find(y=>y.unitId===u.id);
+    const rs=r?(RSTATUS[r.status]||RSTATUS.offered):null;
+    let ctl='';
+    if(!r||r.status==='declined'){
+      ctl='<form data-form="offerRenewal" data-unit="'+id+'" style="margin-top:10px"><div class="form-grid">'+
+        '<label class="f" for="rn-'+id+'">Offered rent (USD)<input type="number" id="rn-'+id+'" name="offerRent" data-keep min="1" step="1" value="'+esc(u.rent)+'" required></label>'+
+        '<label class="f" for="rm-'+id+'">Term<select id="rm-'+id+'" name="termMonths" data-keep>'+opts([['12','12 months'],['6','6 months'],['24','24 months']],'12')+'</select></label>'+
+        '<div><button class="btn primary" type="submit">'+(r?'Send a new offer':'Send renewal offer')+'</button></div></div></form>';
+    } else if(r.status==='offered'){
+      ctl='<p class="note" style="margin-top:8px">Offer of '+money(r.offerRent)+' per month for '+esc(r.termMonths)+' months sent '+esc(fmtD(r.offeredAt))+'. Waiting for the tenant.</p>';
+    } else if(r.status==='accepted'){
+      ctl='<div style="margin-top:10px" class="row"><span class="note">Accepted at '+money(r.offerRent)+' per month for '+esc(r.termMonths)+' months.</span><button class="btn primary sm" type="button" data-act="applyRenewal" data-id="'+id+'">Apply to lease</button></div>';
+    }
+    return '<li><div class="row"><div><b>'+esc(u.tenantName)+'</b><div class="muted">'+ulH(u)+' · lease '+(x.days<0?'ended ':'ends ')+esc(fmtD(u.leaseEnd))+' ('+(x.days<0?Math.abs(x.days)+' days ago':x.days+' days')+') · now '+money(u.rent)+'</div></div>'+(rs?pill(rs[0],rs[1]):'')+'</div>'+ctl+'</li>';
+  }).join('');
+
+  return '<div class="stack">'+
+    '<div class="sec-head" style="margin:0"><h2>Listings</h2><span class="note">Vacant units. Copy the listing text to post it anywhere.</span></div>'+
+    (listCards?'<div class="stack">'+listCards+'</div>':'<div class="empty"><b>No vacant units</b>Every unit has a tenant right now.</div>')+
+    '<section class="card"><h2>Applicants</h2><p class="note" style="margin-bottom:12px">Applicant details are visible to owners and editors only. Apply the same screening criteria to every applicant.</p>'+chips+(apps?'<ul class="list">'+apps+'</ul>':'<div class="empty"><b>No applicants here</b>'+(S.applicants.length?'Nothing matches this filter.':'Add an inquiry to start the pipeline.')+'</div>')+addForm+'</section>'+
+    '<section class="card"><h2>Lease renewals</h2><p class="note" style="margin-bottom:12px">Leases ending within 120 days.</p>'+(rens?'<ul class="list">'+rens+'</ul>':'<div class="empty"><b>No leases ending soon</b>Renewal offers will appear here as lease end dates approach.</div>')+'</section>'+vChat('prospect')+'</div>';
+}
+
+/* ---------- shared thread ---------- */
+function thread(unitId,me){
+  const msgs=S.messages.filter(m=>m.unitId===unitId).sort((a,b)=>pd(a.at)-pd(b.at));
+  const bubbles=msgs.map(m=>{
+    if(m.from==='system') return '<div class="bub sys"><b>Auto notice</b> · '+esc(m.text)+'<span class="when">'+esc(fmtDT(m.at))+'</span></div>';
+    return '<div class="bub'+(m.from===me?' me':'')+'">'+esc(m.text)+'<span class="when">'+(m.from==='owner'?'Owner':'Tenant')+' · '+esc(fmtDT(m.at))+'</span></div>';
+  }).join('');
+  return '<div class="thread" tabindex="0" aria-label="Conversation">'+(bubbles||'<div class="empty" style="margin:auto"><b>No messages yet</b>Say hello below.</div>')+'</div>'+
+   '<form class="composer" data-form="send" data-unit="'+esc(unitId)+'" data-as="'+me+'"><label class="sr" for="msg-in">Message</label><textarea id="msg-in" data-keep rows="2" placeholder="Write a message. Press Enter to send." '+(S.canWrite?'':'disabled')+'></textarea><button class="btn primary" type="submit"'+(S.canWrite?'':' disabled')+'>Send</button></form>'+
+   (S.canWrite?'':'<p class="note" style="margin-top:8px">You have view-only access. Ask the owner for Contributor access to send messages.</p>');
+}
+
+/* ---------- tenant views ---------- */
+function vJoin(){
+  return '<div class="grid" style="max-width:520px;margin:24px auto 0"><section class="card"><h2>Link your unit</h2><p class="muted" style="margin:6px 0 14px">Enter the unit code your property owner gave you. You only need to do this once.</p><form data-form="join"><label class="f" for="join-code">Unit code<input type="text" id="join-code" name="code" data-keep class="mono" placeholder="ABC-A-1234" autocomplete="off" required></label>'+(S.joinErr?'<p style="color:var(--bad);margin-top:8px" role="alert">'+esc(S.joinErr)+'</p>':'')+'<div style="margin-top:12px"><button class="btn primary" type="submit">Link my unit</button></div></form></section></div>';
+}
+
+function tHome(){
+  const u=myUnit(), st=rentStatus(u), p=paymentOf(u);
+  const due=new Date(now.getFullYear(),now.getMonth(),Number(u.dueDay)||1);
+  const mine=S.requests.filter(r=>r.unitId===u.id).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  const open=mine.filter(r=>r.status!=='done');
+  const notices=S.messages.filter(m=>m.unitId===u.id&&(m.from==='system'||m.from==='owner')).sort((a,b)=>pd(b.at)-pd(a.at)).slice(0,3);
+  const hist=S.payments.filter(x=>x.unitId===u.id).sort((a,b)=>String(b.paidAt).localeCompare(String(a.paidAt))).slice(0,4);
+  const ren=S.renewals.find(r=>r.unitId===u.id&&r.status!=='applied');
+  const dis=S.canWrite?'':' disabled';
+  let renCard='';
+  if(ren){
+    const rs=RSTATUS[ren.status]||RSTATUS.offered;
+    renCard='<section class="card"><div class="row" style="margin-bottom:6px"><h2>Lease renewal</h2>'+pill(rs[0],rs[1])+'</div><p>Your owner offered <b>'+money(ren.offerRent)+'</b> per month for <b>'+esc(ren.termMonths)+' months</b>, starting when your current lease ends on '+(u.leaseEnd?fmtD(u.leaseEnd):'—')+'.</p>'+
+      (ren.status==='offered'?'<div style="margin-top:12px" class="row"><span class="pills"><button class="btn primary" type="button" data-act="acceptRenewal"'+dis+'>Accept offer</button><button class="btn" type="button" data-act="declineRenewal"'+dis+'>Decline</button></span></div>':'<p class="note" style="margin-top:8px">'+(ren.status==='accepted'?'Thanks. Your owner will confirm the new lease.':'You declined this offer. Message your owner if you want to talk it over.')+'</p>')+'</section>';
+  }
+  const rentCard='<section class="card"><div class="row" style="margin-bottom:6px"><h2>'+esc(MLABEL)+' rent</h2>'+pill(RENT[st][0],RENT[st][1])+'</div><div class="rent-amt num">'+money(u.rent)+'</div>'+
+    (st==='paid'?'<p class="muted" style="margin-top:6px">Paid '+(p&&p.paidAt?fmtD(p.paidAt):'')+(p&&p.method?' · '+esc(p.method):'')+'</p>':'<p class="muted" style="margin:6px 0 14px">'+(st==='late'?'Was due '+fmtD(due.toISOString().slice(0,10)):'Due '+fmtD(due.toISOString().slice(0,10)))+'</p><button class="btn primary" type="button" data-act="pay"'+(S.canWrite?'':' disabled')+'>Pay '+money(u.rent)+'</button><p class="note" style="margin-top:10px">Simulated payment. No card is charged.</p>')+'</section>';
+  const reqCard='<section class="card"><div class="row" style="margin-bottom:8px"><h2>Maintenance</h2><button class="btn sm" type="button" data-act="tab" data-id="requests">New request</button></div>'+
+    (open.length?'<ul class="list">'+open.slice(0,3).map(r=>'<li class="row"><span style="overflow-wrap:anywhere"><b>'+esc(r.title)+'</b><div class="muted">Opened '+fmtD(r.createdAt)+'</div></span>'+pill(STATUS[r.status][0],STATUS[r.status][1])+'</li>').join('')+'</ul>':'<p class="muted">No open requests. Anything that needs fixing, tell us here.</p>')+'</section>';
+  const leaseCard='<section class="card"><h2>Your lease</h2><ul class="list"><li class="row"><span class="muted">Home</span><span>'+ulH(u)+'</span></li><li class="row"><span class="muted">Monthly rent</span><span class="num">'+money(u.rent)+'</span></li><li class="row"><span class="muted">Rent due</span><span>'+ordinal(u.dueDay)+' of each month</span></li><li class="row"><span class="muted">Lease ends</span><span>'+(u.leaseEnd?fmtD(u.leaseEnd):'—')+'</span></li></ul></section>';
+  const noticeCard='<section class="card"><div class="row" style="margin-bottom:8px"><h2>Latest from your owner</h2><button class="btn sm" type="button" data-act="tab" data-id="messages">Open messages</button></div>'+
+    (notices.length?'<ul class="list">'+notices.map(m=>'<li><div style="overflow-wrap:anywhere">'+esc(m.text)+'</div><div class="note">'+(m.from==='system'?'Auto notice':'Owner')+' · '+esc(fmtDT(m.at))+'</div></li>').join('')+'</ul>':'<p class="muted">No messages yet.</p>')+'</section>';
+  const histCard='<section class="card"><h2>Payment history</h2>'+(hist.length?'<ul class="list">'+hist.map(x=>'<li class="row"><span>'+esc(monthLabel(x.month))+'</span><span class="num">'+money(x.amount)+' <span class="muted">· '+esc(x.method||'')+'</span></span></li>').join('')+'</ul>':'<p class="muted">Payments you make will be listed here.</p>')+'</section>';
+  return '<div class="stack"><div><h2>'+esc(u.tenantName?'Hi, '+u.tenantName.split(' ')[0]:'Welcome')+'</h2><p class="muted">'+ulH(u)+'</p></div>'+renCard+'<div class="grid g-3">'+rentCard+reqCard+leaseCard+'</div><div class="grid g-3" style="grid-template-columns:repeat(auto-fit,minmax(300px,1fr))">'+noticeCard+histCard+'</div>'+vChat('tenant')+'</div>';
+}
+
+function tRequests(){
+  const u=myUnit();
+  const mine=S.requests.filter(r=>r.unitId===u.id).sort((a,b)=>String(b.createdAt).localeCompare(String(a.createdAt)));
+  const form='<section class="card"><h2>New request</h2><form data-form="newReq"><div class="form-grid">'+
+   '<label class="f wide" for="nr-title">What needs attention?<input type="text" id="nr-title" name="title" data-keep maxlength="120" placeholder="Kitchen faucet is dripping" required></label>'+
+   '<label class="f" for="nr-cat">Type<select id="nr-cat" name="category" data-keep>'+opts(Object.keys(CAT_LABEL).map(k=>[k,CAT_LABEL[k]]),'general')+'</select></label>'+
+   '<label class="f" for="nr-pri">Priority<select id="nr-pri" name="priority" data-keep><option value="normal">Normal</option><option value="low">Low, no rush</option><option value="urgent">Urgent: no heat, leak, no power</option></select></label>'+
+   '<label class="f wide" for="nr-detail">Details<textarea id="nr-detail" name="detail" data-keep maxlength="1000" placeholder="Where it is, when it started, anything we should know"></textarea></label>'+
+   '<div class="wide"><button class="btn primary" type="submit"'+(S.canWrite?'':' disabled')+'>Submit request</button></div></div></form></section>';
+  const cards=mine.map(r=>{
+    const idx=STEPS.indexOf(r.status), v=VENDORS.find(x=>x.id===r.vendorId), pr=PRIO[r.priority]||PRIO.normal;
+    return '<article class="card req"><div class="row"><div><h3>'+esc(r.title)+'</h3><div class="meta">'+esc(CAT_LABEL[r.category]||'General repair')+' · opened '+fmtD(r.createdAt)+'</div></div>'+(r.priority==='urgent'?pill(pr[0],pr[1]):'')+'</div>'+
+     (r.detail?'<p class="detail">'+esc(r.detail)+'</p>':'')+
+     '<div class="steps'+(r.status==='done'?' done':'')+'" role="img" aria-label="Status: '+esc(STATUS[r.status]?STATUS[r.status][0]:'Open')+'">'+STEPS.map((s,i)=>'<div class="step'+(i<=idx?' on':'')+'"><i></i>'+esc(STATUS[s][0])+'</div>').join('')+'</div>'+
+     ((v||r.scheduledFor)?'<p class="note" style="margin-top:8px">'+(v?'Assigned to <b>'+esc(v.name)+'</b>':'')+(v&&r.scheduledFor?' · ':'')+(r.scheduledFor?'Visit on <b>'+esc(fmtD(r.scheduledFor))+'</b>':'')+'</p>':'')+'</article>';
+  }).join('');
+  return '<div class="stack">'+form+'<h2>Your requests</h2>'+(cards?'<div class="stack">'+cards+'</div>':'<div class="empty"><b>No requests yet</b>Submit one above and track it here.</div>')+'</div>';
+}
+
+function tMsgs(){
+  const u=myUnit();
+  return '<section class="card"><div class="sec-head"><h2>Messages</h2><span class="note">Conversation with your owner</span></div>'+thread(u.id,'tenant')+'</section>';
+}
+
+/* ---------- actions ---------- */
+const nowISO=()=>new Date().toISOString();
+function defaultTab(){return S.mode==='owner'?'overview':'home';}
+function ensurePreviewUnit(){
+  if(S.manager&&!S.unitId){const o=occupied()[0]; if(o) S.unitId=o.id;}
+}
+
+async function act(name,id){
+  if(name==='tab'){S.tab=id; render(); return;}
+  if(name==='mode'){S.mode=id; S.tab=defaultTab(); ensurePreviewUnit(); render(); return;}
+  if(name==='filter'){S.filter=id; render(); return;}
+  if(name==='hideGuide'){S.guide=false; render(); return;}
+  if(name==='reset'){S.db.reset(); S.threadUnit=null; S.filter='all'; S.stageFilter='all'; toast('Demo reset'); return;}
+  if(name==='stageFilter'){S.stageFilter=id; render(); return;}
+  if(name==='copyReport'||name==='copyCsv'){
+    const d=reportData(), txt=name==='copyReport'?reportText(d):reportCsv(d);
+    try{await navigator.clipboard.writeText(txt); toast(name==='copyReport'?'Report copied':'CSV copied');}
+    catch(e){toast('Copying is blocked in this view. Open the page in its own tab and try again.',true);}
+    return;
+  }
+  if(name==='dlPackage'){
+    const d=reportData(), html=packageHtml(d), fn='Propassist-report-'+d.m+'-'+d.per+'.html';
+    try{const dl=await claude.use('downloads'); if(dl){await dl.save({filename:fn,data:new Blob([html],{type:'text/html'})}); toast('Report package ready'); return;}}catch(e){if(e&&e.code==='declined'||e&&e.code==='cancelled') return;}
+    try{await navigator.clipboard.writeText(html); toast('Download is not available here. Report HTML copied instead.');}
+    catch(e){toast('Download is not available in this view.',true);}
+    return;
+  }
+  if(name==='delExpense'){await run('Expense deleted',()=>S.db.doc('expenses/'+id).delete()); return;}
+  if(name==='thread'){S.threadUnit=id; render(); return;}
+  if(name==='openThread'){S.threadUnit=id; S.tab='messages'; render(); return;}
+  const u=unitOf(id);
+  if(name==='markPaid'&&u){
+    await run('Payment recorded',()=>S.db.doc('payments/'+u.id+'_'+MONTH).set({unitId:u.id,month:MONTH,amount:Number(u.rent)||0,status:'paid',paidAt:nowISO(),method:'Recorded by owner'}));
+  }
+  if(name==='remind'&&u){
+    const text='Reminder: '+money(u.rent)+' rent for '+MLABEL+' is due on the '+ordinal(u.dueDay)+'. You can pay from your Home screen.';
+    await run('Reminder sent to '+u.tenantName,()=>S.db.collection('messages').add({unitId:u.id,from:'system',text:text,at:nowISO()}));
+  }
+  if(name==='pay'){
+    const m=myUnit(); if(!m) return;
+    await run('Payment received. Thank you.',()=>S.db.doc('payments/'+m.id+'_'+MONTH).set({unitId:m.id,month:MONTH,amount:Number(m.rent)||0,status:'paid',paidAt:nowISO(),method:'Bank transfer (simulated)'}));
+  }
+  if(name==='copyListing'&&u){
+    const specs=[u.beds!=null&&u.beds!==''?u.beds+' bd':'',u.baths!=null&&u.baths!==''?u.baths+' ba':'',u.sqft?u.sqft+' sq ft':''].filter(Boolean).join(' · ');
+    const txt=[u.property+' · '+u.name,money(u.rent)+' per month',specs,u.listingNote||''].filter(Boolean).join('\n');
+    try{await navigator.clipboard.writeText(txt); toast('Listing text copied');}
+    catch(e){toast('Copying is blocked in this view. Select the description and copy it by hand.',true);}
+  }
+  if(name==='copySocial'&&u){
+    const sp=[u.beds!=null&&u.beds!==''?u.beds+' bed':'',u.baths!=null&&u.baths!==''?u.baths+' bath':'',u.sqft?u.sqft+' sq ft':''].filter(Boolean).join(' | ');
+    const txt=['Now available: '+u.name+' at '+u.property,sp,money(u.rent)+' per month',u.listingNote||'','Message us to book a tour.','#forrent #apartmentforrent #newlisting'].filter(Boolean).join('\n');
+    try{await navigator.clipboard.writeText(txt); toast('Social post copied');}
+    catch(e){toast('Copying is blocked in this view.',true);}
+    return;
+  }
+  if(name==='suggestRent'&&u){
+    let smp=null; try{smp=await claude.use('sample');}catch(e){}
+    if(!smp){toast('Rent check is not available in this view.',true);return;}
+    S.tips[u.id]='Checking...'; render();
+    try{
+      const r=await smp('You help a landlord sanity-check an asking rent. Unit: '+u.property+', '+u.name+'. Bedrooms: '+(u.beds||'unknown')+'. Bathrooms: '+(u.baths||'unknown')+'. Square feet: '+(u.sqft||'unknown')+'. Current asking rent: $'+u.rent+' per month. You have no live market data. Reply in at most 4 short sentences: a plausible monthly rent range for a unit like this at that address, what drives it, and one thing to verify against current local listings. Begin with "Estimate only:".',{modelTier:'quick',cache:false});
+      S.tips[u.id]=r.text;
+    }catch(e){S.tips[u.id]='';toast('Could not run the rent check. Try again later.',true);}
+    render(); return;
+  }
+  if(name==='miStart'){await run('24-hour move-in clock started',()=>S.db.doc('applicants/'+id).update({moveInStart:nowISO()})); return;}
+  if(name==='moveIn'){
+    const a=S.applicants.find(x=>x.id===id), ru=a&&unitOf(a.unitId);
+    if(!a||!ru) return;
+    const end=new Date(now.getFullYear()+1,now.getMonth(),now.getDate()-1);
+    const endS=end.getFullYear()+'-'+pad(end.getMonth()+1)+'-'+pad(end.getDate());
+    await run(a.name+' moved in',async()=>{
+      await S.db.doc('units/'+ru.id).update({tenantName:a.name,leaseEnd:endS,code:makeCode(ru.property,ru.name),listed:false,dueDay:Math.min(28,now.getDate()+7)});
+      await S.db.doc('applicants/'+a.id).update(a.moveInStart?{stage:'moved_in',moveInDone:nowISO()}:{stage:'moved_in'});
+    });
+  }
+  if(name==='applyRenewal'&&u){
+    const r=S.renewals.find(y=>y.unitId===u.id);
+    if(!r) return;
+    const d=pd(u.leaseEnd)||now;
+    const e=new Date(d.getFullYear(),d.getMonth()+(Number(r.termMonths)||12),d.getDate());
+    const eS=e.getFullYear()+'-'+pad(e.getMonth()+1)+'-'+pad(e.getDate());
+    await run('Lease extended',async()=>{
+      await S.db.doc('units/'+u.id).update({rent:Number(r.offerRent)||u.rent,leaseEnd:eS});
+      await S.db.doc('renewals/'+u.id).update({status:'applied',appliedAt:nowISO()});
+    });
+  }
+  if(name==='acceptRenewal'||name==='declineRenewal'){
+    const m=myUnit(); if(!m) return;
+    const st=name==='acceptRenewal'?'accepted':'declined';
+    await run(st==='accepted'?'Offer accepted':'Offer declined',()=>S.db.doc('renewals/'+m.id).update({status:st,respondedAt:nowISO()}));
+  }
+}
+
+async function changed(name,id,val,el){
+  if(name==='pvUnit'){S.unitId=val; render(); return;}
+  if(name==='repMonth'){S.repMonth=val; render(); return;}
+  if(name==='repPeriod'){S.repPeriod=val; render(); return;}
+  if(name==='repProp'){S.repProp=val; render(); return;}
+  if(name==='unitField'){
+    const field=el.dataset.field; let v=val;
+    if(field==='listed') v=(val==='yes');
+    else if(['rent','beds','baths','sqft'].indexOf(field)>-1){
+      v=val===''?'':Number(val);
+      if(v!==''&&!(v>=0)){toast('Enter a valid number.',true);return;}
+      if(field==='rent'&&!(v>0)){toast('Enter a monthly rent above zero.',true);return;}
+    }
+    const patch={}; patch[field]=v;
+    await run('Unit updated',()=>S.db.doc('units/'+id).update(patch));
+    return;
+  }
+  if(name==='applicantStage'){
+    const a=S.applicants.find(x=>x.id===id), patch={stage:val};
+    if(val==='approved'&&a&&!a.moveInStart) patch.moveInStart=nowISO();
+    await run(patch.moveInStart?'Approved. 24-hour move-in clock started':'Stage updated',()=>S.db.doc('applicants/'+id).update(patch)); return;
+  }
+  if(name==='miStep'){
+    const parts=id.split('|'), a=S.applicants.find(x=>x.id===parts[0]); if(!a) return;
+    const steps=Object.assign({},a.steps||{}); if(el.checked) steps[parts[1]]=nowISO(); else delete steps[parts[1]];
+    const patch={steps:steps}; if(el.checked&&parts[1]==='lease'&&a.stage==='approved') patch.stage='lease_signed';
+    await run('',()=>S.db.doc('applicants/'+a.id).update(patch)); return;
+  }
+  const patch={updatedAt:nowISO()};
+  if(name==='reqStatus') patch.status=val;
+  else if(name==='reqVendor') patch.vendorId=val;
+  else if(name==='reqDate') patch.scheduledFor=val;
+  else return;
+  await run('Request updated',()=>S.db.doc('requests/'+id).update(patch));
+}
+
+function makeCode(property,name){
+  const a=property.replace(/[^A-Za-z]/g,'').slice(0,3).toUpperCase()||'UNT';
+  const b=name.replace(/[^A-Za-z0-9]/g,'').slice(0,2).toUpperCase()||'1';
+  return a+'-'+b+'-'+Math.floor(1000+Math.random()*9000);
+}
+
+async function submit(name,f){
+  const fd=new FormData(f);
+  const val=k=>String(fd.get(k)||'').trim();
+  if(name==='addUnit'){
+    const property=val('property'), uname=val('name'), rent=Number(val('rent')), due=Math.min(28,Math.max(1,Number(val('dueDay'))||1)), tenant=val('tenant');
+    if(!property||!uname||!(rent>0)){toast('Enter an address, a unit name and a monthly rent.',true);return;}
+    const id='u'+Date.now().toString(36);
+    const ok=await run('Unit added',()=>S.db.doc('units/'+id).set({property:property,name:uname,rent:rent,dueDay:due,tenantName:tenant,leaseEnd:val('leaseEnd'),code:tenant?makeCode(property,uname):'',sample:false}));
+    if(ok) f.reset();
+  }
+  if(name==='send'){
+    const text=val('text')||String((f.querySelector('textarea')||{}).value||'').trim();
+    if(!text) return;
+    const ta=f.querySelector('textarea');
+    const ok=await run('',()=>S.db.collection('messages').add({unitId:f.dataset.unit,from:f.dataset.as,text:text.slice(0,2000),at:nowISO()}));
+    if(ok&&ta){ta.value='';}
+  }
+  if(name==='newReq'){
+    const m=myUnit(); const title=val('title');
+    if(!m||!title){toast('Describe what needs attention.',true);return;}
+    const ok=await run('Request sent to your owner',()=>S.db.collection('requests').add({unitId:m.id,title:title,detail:val('detail'),category:val('category')||'general',priority:val('priority')||'normal',status:'open',createdAt:nowISO(),vendorId:'',scheduledFor:''}));
+    if(ok) f.reset();
+  }
+  if(name==='join'){
+    const code=val('code').toUpperCase();
+    const u=S.units.find(x=>x.code&&x.code.toUpperCase()===code);
+    if(!u){S.joinErr='That code does not match a unit. Check it with your property owner.'; render(); return;}
+    S.joinErr='';
+    await run('Unit linked',()=>S.db.doc('data/users/'+S.uid+'/profile').set({unitId:u.id,linkedAt:nowISO()}));
+  }
+  if(name==='addExpense'){
+    const amt=Number(val('amount')), date=val('date');
+    if(!(amt>0)||!date){toast('Enter a date and an amount above zero.',true);return;}
+    const ok=await run('Expense added',()=>S.db.collection('expenses').add({date:date,property:val('property'),category:val('category')||'Other',amount:Math.round(amt*100)/100,note:val('note').slice(0,200),createdAt:nowISO()}));
+    if(ok) f.reset();
+  }
+  if(name==='chat'){
+    const kind=f.dataset.kind, ta=f.querySelector('textarea'), q=(ta.value||'').trim().slice(0,500);
+    if(!q||S.chatBusy) return;
+    let smp=null; try{smp=await claude.use('sample');}catch(e){}
+    if(!smp){toast('The assistant is not available in this view.',true);return;}
+    const hist=(S.chat[kind]||[]).concat([{role:'user',content:q}]); S.chat[kind]=hist; S.chatBusy=true; ta.value=''; render();
+    const intro='You are the '+(kind==='tenant'?'tenant':'leasing')+' assistant inside the Propassist property management app. Answer in at most 3 short sentences, using ONLY the facts below. If the answer is not in the facts, say you do not know and suggest messaging the owner. Never promise availability, approval, discounts or dates beyond the facts, never judge or screen people, never invent prices. Facts: '+chatContext(kind)+'\n\nConversation follows.\n\n';
+    const input=hist.map((m,i)=>({role:m.role,content:(i===0?intro:'')+m.content}));
+    try{const r=await smp(input,{modelTier:'quick',cache:false}); S.chat[kind]=hist.concat([{role:'assistant',content:r.text}]);}
+    catch(e){S.chat[kind]=hist.concat([{role:'assistant',content:'Sorry, I could not answer that. Please message the owner.'}]);}
+    S.chatBusy=false; render(); return;
+  }
+  if(name==='saveFee'){
+    const n=Number(val('feePct')); if(!(n>=0&&n<=100)){toast('Enter a percentage from 0 to 100.',true);return;}
+    await run('Fee saved',()=>S.db.doc('settings/main').set({feePct:n,updatedAt:nowISO()}));
+  }
+  if(name==='addApplicant'){
+    const an=val('name'), au=val('unitId');
+    if(!an||!au){toast('Enter a name and pick a unit.',true);return;}
+    const ok=await run('Applicant added',()=>S.db.collection('applicants').add({name:an,contact:val('contact'),unitId:au,source:val('source')||'Other',note:val('note'),stage:'inquiry',createdAt:nowISO()}));
+    if(ok) f.reset();
+  }
+  if(name==='offerRenewal'){
+    const uid=f.dataset.unit, ru=unitOf(uid), rent=Number(val('offerRent')), term=Number(val('termMonths'))||12;
+    if(!ru||!(rent>0)){toast('Enter the monthly rent you are offering.',true);return;}
+    await run('Renewal offer sent',async()=>{
+      await S.db.doc('renewals/'+uid).set({unitId:uid,offerRent:rent,termMonths:term,status:'offered',offeredAt:nowISO()});
+      await S.db.collection('messages').add({unitId:uid,from:'owner',text:'I sent you a renewal offer: '+money(rent)+' per month for '+term+' months. You can accept or decline it from your Home screen.',at:nowISO()});
+    });
+  }
+}
+
+/* ---------- wiring ---------- */
+const app=$('#app');
+app.addEventListener('click',e=>{const b=e.target.closest('[data-act]'); if(b) act(b.dataset.act,b.dataset.id);});
+document.getElementById('hdr').addEventListener('click',e=>{const b=e.target.closest('[data-act]'); if(b) act(b.dataset.act,b.dataset.id);});
+document.getElementById('foot').addEventListener('click',e=>{const b=e.target.closest('[data-act]'); if(b) act(b.dataset.act,b.dataset.id);});
+app.addEventListener('change',e=>{const el=e.target.closest('[data-change]'); if(el) changed(el.dataset.change,el.dataset.id,el.value,el);});
+app.addEventListener('submit',e=>{e.preventDefault(); submit(e.target.dataset.form,e.target);});
+app.addEventListener('keydown',e=>{
+  if(e.key==='Enter'&&!e.shiftKey&&(e.target.id==='msg-in'||String(e.target.id).indexOf('chat-in-')===0)){e.preventDefault(); if(e.target.form) e.target.form.requestSubmit();}
+});
+
+/* ---------- demo walkthrough ---------- */
+function demoGuide(){
+  return '<section class="card" style="margin-bottom:16px"><div class="row"><h3>Try the demo in five steps</h3><button class="link" type="button" data-act="hideGuide">Hide</button></div>'+
+    '<ol style="margin:8px 0 0;padding-left:20px;display:flex;flex-direction:column;gap:4px">'+
+    '<li>Switch to <b>Tenant</b>, pick Elena Rossi, then submit a maintenance request or pay rent.</li>'+
+    '<li>Switch to <b>Owner</b>. The request shows on Overview. Assign a vendor in Maintenance.</li>'+
+    '<li>In Owner, open Leasing and send Elena a renewal offer. Switch to Tenant and accept it, then apply it to the lease in Owner.</li>'+
+    '<li>In Leasing, set Sam Whitfield to Lease signed, then press Move in.</li>'+
+    '<li>Open <b>Reports</b> to see the monthly property report. Pick a month or a property, add an expense, then copy the report or its CSV.</li></ol>'+
+    '<p class="note" style="margin-top:8px">Changes are saved in this browser only. Use Reset demo at the bottom of the page to start over.</p></section>';
+}
+
+/* ---------- demo data (dates are relative to today) ---------- */
+function seedData(){
+  const DAY=864e5, T=now.getDate();
+  const iso=(d,h)=>{const x=new Date(now.getTime()-d*DAY); x.setHours(h||9,0,0,0); return x.toISOString();};
+  const ymd=d=>{const x=new Date(now.getTime()+d*DAY); return x.getFullYear()+'-'+pad(x.getMonth()+1)+'-'+pad(x.getDate());};
+  const prev=new Date(now.getFullYear(),now.getMonth()-1,1);
+  const PM=prev.getFullYear()+'-'+pad(prev.getMonth()+1);
+  const bank='Bank transfer (simulated)';
+  const units={
+    u1:{property:'412 Alder St',name:'Unit A',rent:2450,dueDay:1,tenantName:'Priya Nair',leaseEnd:ymd(140),code:'ALD-A-4821',sample:true},
+    u2:{property:'412 Alder St',name:'Unit B',rent:2300,dueDay:1,tenantName:'Marcus Bell',leaseEnd:ymd(260),code:'ALD-B-1937',sample:true},
+    u3:{property:'88 Pier Ave',name:'Unit 1',rent:2975,dueDay:Math.max(1,T-6),tenantName:'Elena Rossi',leaseEnd:ymd(47),code:'PIE-1-7305',sample:true},
+    u4:{property:'88 Pier Ave',name:'Unit 2',rent:2800,dueDay:28,tenantName:'Daniel Okafor',leaseEnd:ymd(200),code:'PIE-2-2648',sample:true},
+    u5:{property:'88 Pier Ave',name:'Unit 3',rent:2900,dueDay:1,tenantName:'',leaseEnd:'',code:'',beds:2,baths:1,sqft:880,listed:true,listingNote:'Top-floor corner unit with in-unit laundry and a south-facing balcony. Pets considered. Available now.',sample:true}
+  };
+  const payments={};
+  [['u1',2450],['u2',2300],['u3',2975],['u4',2800]].forEach(x=>{
+    payments[x[0]+'_'+PM]={unitId:x[0],month:PM,amount:x[1],status:'paid',paidAt:iso(30,10),method:bank};
+  });
+  payments['u1_'+MONTH]={unitId:'u1',month:MONTH,amount:2450,status:'paid',paidAt:iso(Math.max(0,T-1),9),method:bank};
+  payments['u2_'+MONTH]={unitId:'u2',month:MONTH,amount:2300,status:'paid',paidAt:iso(Math.max(0,T-2),11),method:bank};
+  const requests={
+    'r-faucet':{unitId:'u1',title:'Kitchen faucet is dripping',detail:'Slow drip from the base of the faucet, started over the weekend.',category:'plumbing',priority:'normal',status:'in_progress',createdAt:iso(5,10),vendorId:'v-blueline',scheduledFor:ymd(-1)},
+    'r-heat':{unitId:'u3',title:'No heat in the bedroom',detail:'The bedroom vent blows cold air. The living room heats fine.',category:'heating',priority:'urgent',status:'open',createdAt:iso(1,7),vendorId:'',scheduledFor:''},
+    'r-light':{unitId:'u4',title:'Hallway light flickers',detail:'The ceiling light outside the unit door flickers at night.',category:'electrical',priority:'low',status:'scheduled',createdAt:iso(4,19),vendorId:'v-spark',scheduledFor:ymd(4)},
+    'r-dishwasher':{unitId:'u2',title:'Dishwasher is not draining',detail:'Water pools at the bottom after every cycle.',category:'appliance',priority:'normal',status:'done',createdAt:iso(17,12),vendorId:'v-homeworks',scheduledFor:ymd(-15)}
+  };
+  const messages={
+    m1:{unitId:'u3',from:'owner',text:'Hi Elena, your lease ends in about seven weeks. Would you like to talk about renewing?',at:iso(2,16)},
+    m2:{unitId:'u3',from:'tenant',text:'Yes, I would like to renew. Could we keep the rent the same?',at:iso(2,18)},
+    m3:{unitId:'u1',from:'system',text:'Rent for '+MLABEL+' is due. You can pay from your Home screen.',at:iso(Math.max(0,T-1),8)},
+    m4:{unitId:'u4',from:'system',text:'Reminder: $2,800 rent for '+MLABEL+' is due on the 28th.',at:iso(2,8)},
+    m5:{unitId:'u1',from:'owner',text:'Thanks for reporting the faucet. BlueLine Plumbing will visit this week.',at:iso(5,14)}
+  };
+  const applicants={
+    a1:{name:'Jordan Lee',contact:'jordan.lee@example.com',unitId:'u5',source:'Listing site',note:'Asked about pet policy and parking.',stage:'inquiry',createdAt:iso(1,12)},
+    a2:{name:'Amara Diaz',contact:'(555) 010-2244',unitId:'u5',source:'Referral',note:'Tour booked for Saturday morning.',stage:'tour',createdAt:iso(3,9)},
+    a3:{name:'Sam Whitfield',contact:'sam.whitfield@example.com',unitId:'u5',source:'Social media',note:'Wants to move in next month.',stage:'applied',createdAt:iso(6,15)},
+    a4:{name:'Taylor Brooks',contact:'taylor.brooks@example.com',unitId:'u5',source:'Referral',note:'Approved. Wants keys tomorrow morning.',stage:'lease_signed',createdAt:iso(2,10),moveInStart:new Date(Date.now()-7*36e5).toISOString(),steps:{lease:new Date(Date.now()-5*36e5).toISOString(),funds:new Date(Date.now()-2*36e5).toISOString()}}
+  };
+  const cur=d=>MONTH+'-'+pad(Math.max(1,Math.min(d,T)));
+  const expenses={
+    e1:{date:cur(2),property:'412 Alder St',category:'Repairs and maintenance',amount:185,note:'Plumber visit, Unit A faucet',createdAt:iso(2,10)},
+    e2:{date:cur(1),property:'88 Pier Ave',category:'Utilities',amount:312.4,note:'Common-area electricity',createdAt:iso(1,10)},
+    e3:{date:PM+'-12',property:'',category:'Insurance',amount:640,note:'Landlord policy, monthly share',createdAt:iso(35,10)},
+    e4:{date:PM+'-20',property:'412 Alder St',category:'Repairs and maintenance',amount:95,note:'Dishwasher drain fix, Unit B',createdAt:iso(27,10)}
+  };
+  return {units:units,payments:payments,requests:requests,messages:messages,applicants:applicants,renewals:{},expenses:expenses,settings:{}};
+}
+
+/* ---------- local store with the same surface the page uses ---------- */
+function makeLocalDb(){
+  const KEY='propassist-demo-v6';
+  let data=null;
+  try{const raw=localStorage.getItem(KEY); if(raw) data=JSON.parse(raw);}catch(e){}
+  if(!data||typeof data!=='object') data=seedData();
+  S.cols.forEach(c=>{if(!data[c]) data[c]={};});
+  const subs={};
+  const persist=()=>{try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}};
+  const clone=o=>JSON.parse(JSON.stringify(o));
+  const snapOf=col=>{
+    const m=data[col]||{};
+    const docs=Object.keys(m).sort().map(id=>({id:id,exists:true,data:()=>m[id]}));
+    return {docs:docs,size:docs.length,empty:docs.length===0};
+  };
+  const notify=col=>{(subs[col]||[]).forEach(f=>f(snapOf(col)));};
+  const docRef=path=>{
+    const p=path.split('/'), col=p[0], id=p[1];
+    return {
+      id:id,
+      set:async d=>{(data[col]=data[col]||{})[id]=clone(d); persist(); notify(col);},
+      update:async d=>{
+        if(!data[col]||!data[col][id]) throw {code:'invalid_argument'};
+        data[col][id]=Object.assign({},data[col][id],clone(d)); persist(); notify(col);
+      },
+      delete:async()=>{if(data[col]) delete data[col][id]; persist(); notify(col);}
+    };
+  };
+  const colRef=col=>({
+    onSnapshot:next=>{
+      (subs[col]=subs[col]||new Set()).add(next);
+      setTimeout(()=>next(snapOf(col)),0);
+      return ()=>subs[col].delete(next);
+    },
+    add:async d=>{
+      const id='x'+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+      await docRef(col+'/'+id).set(d);
+      return {id:id};
+    }
+  });
+  return {
+    doc:docRef,collection:colRef,
+    reset:()=>{data=seedData(); S.cols.forEach(c=>{if(!data[c]) data[c]={};}); persist(); Object.keys(subs).forEach(notify);}
+  };
+}
+
+/* ---------- boot ---------- */
+function init(){
+  S.db=makeLocalDb(); S.user=null; S.manager=true; S.canWrite=true; S.uid='demo';
+  S.mode='owner'; S.tab='overview'; S.ready=true;
+  render();
+  S.cols.forEach(n=>{
+    S.db.collection(n).onSnapshot(snap=>{
+      S[n]=snap.docs.map(d=>Object.assign({id:d.id},d.data()));
+      S.loaded[n]=true;
+      if(n==='units') ensurePreviewUnit();
+      schedule();
+    });
+  });
+}
+init();
+})();
+</script>
+
+
+</body></html>
